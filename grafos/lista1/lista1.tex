@@ -1,0 +1,169 @@
+\documentclass[12pt, a4paper, oneside]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[left = 2cm, right = 2cm, top = 2cm, bottom = 2cm]{geometry}
+\usepackage{indentfirst}
+\usepackage{listings}
+
+\lstset{
+language=C,
+tabsize=2,
+inputencoding=utf8,
+basicstyle=\small,
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+% columns=fullflexible
+}
+
+\title{\huge{MAC0328 - Algoritmos em Grafos - Lista 1}}
+
+\author{Pedro Paulo Vezzá Campos - 7538743}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Questão 1} Sejam \texttt{d[w]}, \texttt{f[w]} e \texttt{parnt[w]}
+respectivamente os tempos de descoberta, finalização e o vértice pai na
+arborecência DFS do vértice w.
+
+A partir do momento que o algoritmo de busca em profundidade descobre o vértice
+u temos algumas possibilidades:
+\begin{description}
+  \item [O vértice v ainda não foi descoberto.] \hfill
+  	\begin{enumerate}
+  		\item Caso o algoritmo descubra v através de u $\rightarrow$ v temos que
+  			\texttt{d[u]} < \texttt{d[v]} e \texttt{parnt[v]} = u. Ainda, vale
+  			\texttt{f[v]} < \texttt{f[u]} pela definição de DFS. Portanto u
+  			$\rightarrow$ v é arco de arborecência. Automaticamente o arco v
+  			$\rightarrow$ u será de retorno pela definição de arco de retorno
+  			(\texttt{d[u]} < \texttt{d[v]} < \texttt{f[v]} < \texttt{f[u]}).
+		\item Caso o algortimo descubra v por outro caminho que não u $\rightarrow$ v
+			temos novamente que \texttt{d[u]} < \texttt{d[v]} e \texttt{f[v]} <
+			\texttt{f[u]} pois v é um descendente de u. Neste caso, no entanto,
+			\texttt{parnt[v]} $\ne$ u pois não foi utilizado o arco u $\rightarrow$ v para
+			descobrir v. Isso denota que u $\rightarrow$ v é um arco descendente.
+			Novamente, v $\rightarrow$ u será arco de retorno pela definição de arco de
+		retorno.
+	\end{enumerate}
+\end{description}
+
+\begin{description}
+  \item [O vértice v já foi descoberto mas ainda não foi fechado.] \hfill
+	\begin{enumerate}
+	  \item Caso o vértice
+u tenha sido descoberto através do arco v $\rightarrow$ u estamos em um caso análogo ao
+1.1. Vale que \texttt{d[v]} < \texttt{d[u]} e \texttt{parnt[u]} = v e pela definição de DFS vale \texttt{f[u]} <
+\texttt{f[v]}. Com isso concluímos que v $\rightarrow$ u é da arborecência e que u $\rightarrow$ v é de
+retorno.
+	  \item Caso o algortimo descubra v por outro caminho que não v $\rightarrow$ u
+estamos em um caso análogo ao 1.2. Vale novamente que \texttt{d[v]} < \texttt{d[u]} já que u é
+descendente de v. Mas \texttt{parnt[v]} $\ne$ v pois não utilizamos v
+$\rightarrow$ u para descobrir u. Concluímos assim que v $\rightarrow$ u é um arco
+descendente. Novamente, u $\rightarrow$ v será arco de retorno pela definição de arco de retorno.
+	\end{enumerate}
+\end{description}
+
+\begin{description}
+  \item [O vértice v já foi descoberto e fechado. (Impossível!)] \hfill
+  
+  Isso implicaria que todos os vértices atingíveis a partir de v já teriam sido
+  descobertos e fechados, inclusive u, o que contraria a suposição que o
+  algoritmo acabou de descobrir u. Isso elimina a possibilidade que u
+  $\rightarrow$ v seja um arco cruzado pois não é possível que \texttt{d[v]} <
+  \texttt{f[v]} < \texttt{d[u]} < \texttt{f[u]}. Analogamente, também não é
+  possível que v $\rightarrow$ u seja arco cruzado pois isso implicaria que
+  \texttt{d[u]} < \texttt{f[u]} < \texttt{d[v]} < \texttt{f[v]} o que significa
+  que u e todos seus atingíveis já foram fechados, o que contraria a suposição
+  que o algoritmo ainda está percorrendo u. Contradição.
+\end{description}
+
+\section*{Questão 2}
+\begin{lstlisting}
+static int cnt, pre[maxV], bcnt, low[maxV];
+static int parnt[maxV];
+
+void all_bridges (Graph G) {
+	Vertex v;
+	cnt = bcnt = 0;
+	for (v = 0; v < G->V; v++)
+		pre[v] = -1;
+	for (v = 0; v < G->V; v++)
+		if (pre[v] == -1) {
+			parnt[v] = v;
+			bridgeR(G, v);
+		}
+	
+}
+
+void bridgeR (Graph G, Vertex v) {
+	link p; Vertex w;
+	pre[v] = cnt++;
+	low[v] = pre[v];
+	for (p=G->adj[v];p!=NULL;p=p->next)
+		if (pre[w=p->w] == -1) {
+			parnt[w] = v;
+			bridgeR(G, w);
+			
+			if (low[v] > low[w]) low[v]=low[w];
+			if (low[w] == pre[w]) {
+				bcnt++;
+				printf("%d-%d\n", v, w);
+			}
+		}
+		else if (w!=parnt[v] && low[v]>pre[w])
+			low[v] = pre[w];
+}
+\end{lstlisting}
+
+\section*{Questão 3}
+\begin{lstlisting}
+/**
+GRAPHremoveMultiV recebe como parametros:
+ - Um Graph G inicializado e propriamente populado
+ - Um vetor removed de flags com tamanho pelo menos G->V
+ - Um vetor map Vertex com tamanho pelo menos G->V
+
+Pre-condicoes:
+ - G esta inicializado e propriamente populado
+ - Para todo vertice v em G vale que removed[v] = 1 caso o vertice v
+tenha sido removido e removed[v] = 0 caso contrario.
+
+Pos-condicoes:
+ - G nao sofre alteracoes
+ - O algoritmo retorna um novo grafo de tamanho G->V - x, sendo x o
+numero de vertices removidos
+ - O grafo retornado possui todos os vertices nao removidos com nomes
+possivelmente trocados
+e todas as arestas que nao tinham ponta em um vertice removido.
+ - Para todo vertice v de G temos que map[v] = w sendo w o novo nome
+do vertice no novo grafo retornado caso v nao tenha sido removido ou
+map[v] = -1 caso contrario.*/
+Graph GRAPHremoveMultiV(Graph G, int removed[], Vertex map[]){
+	Vertex i, count = 0;
+	link p;
+	Graph G2;
+	for(i = 0; i < G->V; i++)
+		map[i] = removed[i] ? -1 : count++;
+	
+	G2 = GRAPHinit(count + 1);
+	
+	for(i = 0; i < G->V; i++) {
+		if(removed[i])
+			continue;
+		for(p = G->adj[i]; p != NULL; p = p->next)
+			if(!removed[p->w])
+				DIGRAPHinsertA(G2, map[i], map[p->w]);
+	}
+	
+	return G2;
+}
+\end{lstlisting}
+
+
+\end{document}

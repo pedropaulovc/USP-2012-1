@@ -1,0 +1,153 @@
+\documentclass[brazil,times]{abnt}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+\usepackage{amssymb}
+\makeatletter
+\usepackage{babel}
+\makeatother
+
+\begin{document}
+
+
+\autor{Arthur Branco Costa - 7278156 \\
+      Daniel Paulino Alves - 7156894 \\
+      Felipe Yamaguti - 7295336 \\
+      Pedro Paulo Vezzá Campos - 7538743 \\
+      Thiago Tatsuo Nagaoka - 7289197}
+
+\titulo{Conceitos da Linguagem Modula-3}
+
+\comentario{Primeiro exercício-programa apresentado para avaliação na disciplina
+MAC0316, do curso de Bacharelado em Ciência da Computação, turma 45, da
+Universidade de São Paulo, ministrada pela professora Ana Cristina Vieira de
+Melo.}
+
+\instituicao{Departamento de Ciência da Computação \par Instituto de Matemática
+e Estatística \par Universidade de São Paulo}
+
+\local{São Paulo - SP, Brasil}
+
+\data{\today}
+
+\capa
+
+\folhaderosto
+
+\tableofcontents
+
+\chapter{Introdução}
+Programas são feitos com o intuito de, através de um conjunto de pré-condições, manipular os dados de entrada ao longo de processos, de forma a produzir um resultado útil e eficaz, desde que elas sejam respeitadas.
+
+Eles podem diferir em diversas características: paradigma, lógica computacional, eficiência, legibilidade, simplicidade, entre outros. No entanto, um fator poderia ser classificado como principal: a linguagem de programação na qual eles são escritos. Com muitos de seus conceitos já pré-definidos pelos seus projetistas, e a possibilidade de que o programador desenvolva outros, as linguagens de programação são altamente relacionadas aos fatores mencionados.
+
+Assim, a escolha adequada da linguagem determina a expressividade e facilita a criação de um bom programa. Desta forma, é necessário que o programador tenha um bom conhecimento da linguagem escolhida, para que possa obter seu maior aproveitamento.
+
+Este trabalho visa analisar as propriedades presentes na linguagem Modula-3
+e os conceitos a serem apresentados decorrem de tal necessidade. \cite{ana:livro} \cite{cardelli:Modula3LanguageDefinition}
+ 
+\chapter{Tipos primitivos e compostos}
+Para alcançar o seu objetivo, um programa deve lidar com valores. Para isso, é preciso que operações que os relacionem sejam definidas. A fim de evitar a repetição excessiva dessas definições, os valores são agrupados em conjuntos de mesma espécie com propriedades próprias: os tipos.
+
+Divididos em tipos primitivos e compostos.  
+
+\section{Tipos primitivos}
+Ocorrem caso seus valores não possam ser subdivididos em elementos pertencentes ao mesmo conjunto. Ou seja, as partes podem existir, mas não são semanticamente relacionadas.
+
+Eles dividem-se em Integer, Cardinal, Boolean, Char, Enumerated e Reference.
+
+%%%%%%%%%%%%
+%Ordinais (Intervalos de representação)
+% - INTEGER: Todos os números representáveis pela implementação (Similar a [MIN_INT, MAX_INT])
+% - CARDINAL: Similar a [0, MAX_INT]
+% - BOOLEAN: Enumeração {FALSE, TRUE}
+% - CHAR: Enumeração com pelo menos 256 elementos
+% - {A, B, C}
+% - [T1.A..T1.C]
+
+%Ponto flutuante:
+% - REAL
+% - LONGREAL
+% - EXTENDED
+
+%Array:
+% - VAR a ARRAY Ordinal of REAL;
+
+%Records:
+%	Idem structs
+
+%Set:
+
+%Referências:
+% - traced: Com coleta de lixo
+% - untraced: Sem coleta de lixo
+
+%Exemplos de código:
+% - http://rosettacode.org/wiki/Category:Modula-3
+
+%%%%%%%%%%%%
+
+
+\subsection{\texttt{INTEGER}}
+Lorem ipsum
+\subsection{Cardinal}
+Lorem ipsum
+\subsection{Boolean} 
+\subsection{Char} 
+\subsection{Enumerated} 
+\subsection{Reference} 
+
+\section{Tipos Compostos}
+Este tipo diz respeito a um conjunto de valores cujos elementos podem ser separados em partes menores e mais simples, que ainda pertencem ao todo.
+
+Dividem-se em Array, Record, Set e Object.
+
+\subsection{Array} 
+\subsection{Record} 
+\subsection{Set} 
+\subsection{Object} 
+
+\chapter{Variáveis simples e compostas}
+Programas manipulam e armazenam valores através de variáveis. Elas são caracterizadas por um identificador, um endereço de memória e um valor associado.
+
+Do ponto de vista de seus armazenamento e acesso são classificadas em simples e compostas.
+
+\section{Variáveis simples}
+Armazenam valores que são acessados de maneira pontual, ou seja, a modificação e o acesso de seus valores são feitos como um todo.
+
+a: INTEGER
+
+\section{Variáveis compostas}
+Variáveis que armazenam valores que podem ser acessados e modificados individualmente. Isto é, o tratamento de seus elementos é seletivo.
+
+
+\chapter{Variáveis quanto a sua existência}
+Variáveis também podem ser caracterizadas segundo sua existência. Tal classificação abrange variáveis globais, locais, \textit{heap} e persistentes.
+
+\section{Variáveis globais}
+São variáveis que existem antes do programa ser executado e permanecem ativas até o seu término.
+
+\section{Variáveis locais}
+Variáveis cuja existência é delimitada pelo escopo no qual está inserida. Logo, mostram-se ativas desde o momento de sua declaração até o fim do escopo.
+
+\section{Variáveis \textit{heap}}
+Ao contrário das anteriores, a existência destas é condicionada à alocação e desalocação dinâmicas de memória. Portanto, elas são criadas durante o tempo de execução do programa e encerradas após a desalocação de sua memória ocupada, ou no final, prática não recomendada por gerar vazamento de memória, pois cabe ao sistema operacional forçar a desalocação desse espaço.
+
+\section{Variáveis persistentes}
+Estas variáveis destacam-se das demais por serem as únicas que, com o encerramento do programa, não são destruídas. Desta maneira, suas informações são armazenadas para uso posterior.
+
+
+\chapter{Forma e tempo de vinculação de tipos às variáveis}
+
+
+\chapter{Sistemas e verificação de tipos utilizados na linguagem}
+
+
+\chapter{Abstrações}
+
+\bibliographystyle{abnt-num}
+\bibliography{bibliografia}
+
+\end{document}

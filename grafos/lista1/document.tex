@@ -1,0 +1,208 @@
+\documentclass[12pt, a4paper, oneside]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[portuguese]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[left = 2cm, right = 2cm, top = 2cm, bottom = 2cm]{geometry}
+\usepackage{indentfirst}
+\usepackage{listings}
+
+\lstset{
+language=C,
+tabsize=2,
+inputencoding=utf8,
+basicstyle=\small,
+showspaces=false,
+showstringspaces=false,
+showtabs=false,
+% columns=fullflexible
+}
+
+\title{\large{MAC0328 - Algoritmos em Grafos - Lista 1}}
+
+\author{Pedro Paulo Vezzá Campos - 7538743}
+
+\date{\today}
+
+\begin{document}
+
+\maketitle
+
+\section*{Questão 1} Sejam \texttt{d[$w$]}, \texttt{f[$w$]} e \texttt{parnt[$w$]}
+respectivamente os tempos de descoberta, finalização e o vértice pai na
+arborescência DFS do vértice $w$.
+
+A partir do momento que o algoritmo de busca em profundidade descobre o vértice
+$u$ temos algumas possibilidades:
+\begin{description}
+  \item [O vértice $v$ ainda não foi descoberto.] \hfill
+  	\begin{enumerate}
+  		\item Caso o algoritmo descubra $v$ através de $u$ $\rightarrow$ $v$ temos que
+  			\texttt{d[$u$]} < \texttt{d[$v$]} e \texttt{parnt[$v$]} = $u$. Ainda, vale
+  			\texttt{f[$v$]} < \texttt{f[$u$]} pela definição de DFS. Portanto $u$
+  			$\rightarrow$ $v$ é arco de arborescência. Automaticamente o arco $v$
+  			$\rightarrow$ $u$ será de retorno pela definição de arco de retorno
+  			(\texttt{d[$u$]} < \texttt{d[$v$]} < \texttt{f[$v$]} < \texttt{f[$u$]}).
+		\item Caso o algortimo descubra $v$ por outro caminho que não $u$ $\rightarrow$ $v$
+			temos novamente que \texttt{d[$u$]} < \texttt{d[$v$]} e \texttt{f[$v$]} <
+			\texttt{f[$u$]} pois $v$ é um descendente de $u$. Neste caso, no entanto,
+			\texttt{parnt[$v$]} $\ne$ $u$ pois não foi utilizado o arco $u$ $\rightarrow$ $v$ para
+			descobrir $v$. Isso denota que $u$ $\rightarrow$ $v$ é um arco descendente.
+			Novamente, $v$ $\rightarrow$ $u$ será arco de retorno pela definição de arco de
+		retorno.
+	\end{enumerate}
+\end{description}
+
+\begin{description}
+  \item [O vértice $v$ já foi descoberto mas ainda não foi fechado.] \hfill
+	\begin{enumerate}
+	  \item Caso o vértice
+$u$ tenha sido descoberto através do arco $v$ $\rightarrow$ u estamos em um caso análogo ao
+1.1. Vale que \texttt{d[$v$]} < \texttt{d[$u$]} e \texttt{parnt[$u$]} = $v$ e pela definição de DFS vale \texttt{f[$u$]} <
+\texttt{f[$v$]}. Com isso concluímos que $v$ $\rightarrow$ $u$ é da arborescência e que $u$ $\rightarrow$ $v$ é de
+retorno.
+	  \item Caso o algortimo descubra $v$ por outro caminho que não $v$ $\rightarrow$ $u$
+estamos em um caso análogo ao 1.2. Vale novamente que \texttt{d[$v$]} < \texttt{d[$u$]} já que $u$ é
+descendente de $v$. Mas \texttt{parnt[$v$]} $\ne$ $v$ pois não utilizamos $v$
+$\rightarrow$ $u$ para descobrir $u$. Concluímos assim que $v$ $\rightarrow$ $u$ é um arco
+descendente. Novamente, $u$ $\rightarrow$ $v$ será arco de retorno pela definição de arco de retorno.
+	\end{enumerate}
+\end{description}
+
+\begin{description}
+  \item [O vértice $v$ já foi descoberto e fechado. (Impossível!)] \hfill
+  
+  Isso implicaria que todos os vértices atingíveis a partir de $v$ já teriam sido
+  descobertos e fechados, inclusive $u$, o que contraria a suposição que o
+  algoritmo acabou de descobrir $u$. Isso elimina a possibilidade que $u$
+  $\rightarrow$ $v$ seja um arco cruzado pois não é possível que \texttt{d[$v$]} <
+  \texttt{f[$v$]} < \texttt{d[$u$]} < \texttt{f[$u$]}. Analogamente, também não é
+  possível que $v$ $\rightarrow$ $u$ seja arco cruzado pois isso implicaria que
+  \texttt{d[$u$]} < \texttt{f[$u$]} < \texttt{d[$v$]} < \texttt{f[$v$]} o que significa
+  que $u$ e todos seus atingíveis já foram fechados, o que contraria a suposição
+  que o algoritmo ainda está percorrendo $u$. Contradição.
+\end{description}
+
+\section*{Questão 2}
+
+
+
+\begin{lstlisting}
+/**
+all_articulations recebe como parametro um grafo inicializado e populado G
+e imprime na saida padrao todas as articulacoes do grafo, uma por linha.
+*/
+void all_articulations (Graph G) {
+	Vertex v;
+	cnt = 0;
+	for (v = 0; v < G->V; v++)
+		pre[v] = -1;
+	for (v = 0; v < G->V; v++)
+		if (pre[v] == -1) {
+			parnt[v] = v;
+			articulationR(G, v);
+		}
+}
+
+void articulationR (Graph G, Vertex v) {
+	link p; Vertex w;
+	int adj = 0, articulation = 0;
+	pre[v] = cnt++;
+	low[v] = pre[v];
+	for (p=G->adj[v];p!=NULL;p=p->next)
+		if (pre[w=p->w] == -1) {
+			adj++;
+			parnt[w] = v;
+			articulationR(G, w);
+			
+			if (low[v] > low[w]) low[v]=low[w];
+			if (parnt[v] != v && low[w] >= pre[v]) /* Modificacao 1 */
+				articulation = 1;
+		} else if (w!=parnt[v] && low[v]>pre[w])
+			low[v] = pre[w];
+			
+	if(articulation || parnt[v] == v && adj > 1) /* Modificacao 2 */
+		printf("%d\n", v);
+}
+\end{lstlisting}
+
+Os vetores \texttt{pre}, \texttt{low} e \texttt{parnt} continuam tendo a mesma definição utilizada
+no algoritmo de busca de pontes \texttt{all\_bridges}.
+ 
+Seja $v$ um ponto de articulação. Como a sua remoção implica que no aumento do número de componentes,
+temos que todo caminho que ligue algum descendente de $v$ a algum vértice descoberto antes de $v$ deve obrigatoriamente
+passar por $v$. Mais especificamente, há um filho $w$ de $v$ (\texttt{parnt[$w$]} = $v$) que não pode 
+acessar nenhum ancestral de $v$ sem passar por ele. Consequentemente, teremos que o menor número de
+preordem atingível por $w$ será limitado inferiormente pelo número de preordem de $v$ (\texttt{low[$w$]}
+$\ge$ \texttt{pre[$v$]}).
+
+As raizes da floresta DFS são tratadas como casos particulares: Uma raiz $v$ só será será uma articulação 
+se ela tiver pelo menos dois nós filhos na arborescência. Caso tenha menos que isso, a remoção
+da raiz não implica no aumento de componentes, não caracterizando uma articulação. Por outro lado, 
+ter dois ou mais filhos $f_1, f_2, \ldots$ na arborescência implica pela definição de DFS que não 
+há caminho ligando $f_1$ a $f_2$ por exemplo. Note que se o $f_2$ fosse atingível a partir $f_1$, $f_2$ seria
+visitado e fechado antes do fim da DFS em $f_1$, logo o arco $v \rightarrow f_2$ seria descendente e não de
+arborescência, contradição. Como os filhos $f_1, f_2, \ldots$ não conseguem atingir uns aos outros sem $v$,
+a sua remoção aumenta o número de componentes e portanto $v$ será articulação.
+
+No algoritmo \texttt{all\_articulations} as modificações realizadas buscam capturar as duas possibilidades
+de descoberta de articulação descritas nos parágrafos anteriores. Para isso, caso a DFS
+encontre um novo filho $w$ do vértice atual $v$ na arborescência, varre-o recursivamente e checa em seguida
+se vale que \texttt{low[$w$]} $\ge$ \texttt{pre[$v$]}. Em caso positivo, atualiza a \emph{flag} \texttt{articulation}
+para verdadeiro, indicando que foi encontrada uma nova articulação (Modificação 1).
+
+Ao final da varredura dos adjacentes é verificado se a \emph{flag} \texttt{articulation} está marcada como verdadeira
+ou se é raiz com mais de um filho. Em ambos os casos, imprime o vértice atual indicando que uma nova articulação foi
+encontrada (Modificação 2).
+
+\section*{Questão 3}
+\begin{lstlisting}
+/**
+GRAPHremoveMultiV recebe como parametros:
+ - Um Graph G inicializado e propriamente populado
+ - Um vetor removed de flags com tamanho pelo menos G->V
+ - Um vetor map Vertex com tamanho pelo menos G->V
+
+Pre-condicoes:
+ - G esta inicializado e propriamente populado
+ - Para todo vertice v em G vale que removed[v] = 1 caso o vertice v
+tenha sido removido e removed[v] = 0 caso contrario.
+
+Pos-condicoes:
+ - G nao sofre alteracoes
+ - O algoritmo retorna um novo grafo de tamanho G->V - x, sendo x o
+numero de vertices removidos
+ - O grafo retornado possui todos os vertices nao removidos com nomes
+possivelmente trocados
+e todas as arestas que nao tinham ponta em um vertice removido.
+ - Para todo vertice v de G temos que map[v] = w sendo w o novo nome
+do vertice no novo grafo retornado caso v nao tenha sido removido ou
+map[v] = -1 caso contrario.
+
+Observacoes:
+ - Funcoes auxiliares GRAPHinit e DIGRAPHinsertA sao as mesmas das
+notas de aula.
+*/
+Graph GRAPHremoveMultiV(Graph G, int removed[], Vertex map[]){
+	Vertex i, count = 0;
+	link p;
+	Graph G2;
+	for(i = 0; i < G->V; i++)
+		map[i] = removed[i] ? -1 : count++;
+	
+	G2 = GRAPHinit(count);
+	
+	for(i = 0; i < G->V; i++) {
+		if(removed[i])
+			continue;
+		for(p = G->adj[i]; p != NULL; p = p->next)
+			if(!removed[p->w])
+				DIGRAPHinsertA(G2, map[i], map[p->w]);
+	}
+	
+	return G2;
+}
+\end{lstlisting}
+
+
+\end{document}

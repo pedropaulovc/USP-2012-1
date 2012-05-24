@@ -1,0 +1,50 @@
+1 - Quando faz sentido utilizar um SGBD ao invés de simplesmente utilizar o sistema de arquivos? Quando não faz sentido utilizar um SGBD?
+
+Um SGBD traz como vantagens:
+ - A separação da lógica da aplicação da definição (da estrutura de armazenamento) dos dados
+ - O acesso concorrente ao banco de dados
+ - O controle de consistência e integridade
+ - A definição de múltiplas visões dos dados (Acesso e segurança)
+ - Consultas eficientes.
+
+Não há necessidade de utilizar um SGBD caso:
+ - Os dados e aplicações sejam simples e estáveis
+ - Não há acesso concorrente
+ - Os requisitos não irão mudar com o tempo.
+
+
+2 - O que é independência lógica de dados e por que esse conceito é importante?
+
+
+3 - Explique as diferenças entre independência lógica de dados e independência física de dados.
+
+
+4 - Explique as diferenças entre esquemas externos, lógico e físico. Como esses conceitos se relacionam com os conceitos de independência de dados?
+
+
+5 - Quais são as responsabilidades de um Projetista de Banco de Dados e do DBA?
+
+
+6 - O Sr. Avarento quer guardar informações de seus funcionários (nome, endereço, momentos preocupantes). O volume de dados o forçou a decidir comprar um SGBD. Para economizar, ele quer comprar um que tenha apenas as características necessárias para executar uma aplicação stand-alone em seu PC. O Sr. Avarento não quer compartilhar essa lista com ninguém. Indique quais das seguintes características de SGBDs o Sr. Avarento necessita? Justifique.
+ - Segurança.
+ - Controle de concorrência.
+ - Recuperação após falhas.
+ - Mecanismos de visão.
+ - Linguagem de consulta.
+
+
+7 - Descreva os passos de um projeto de BD.
+
+
+8 - Quais dos seguintes itens exercem papel importante na representação de informações do mundo real num BD? Comente.
+ - Linguagem de definição de dados.
+ - Linguagem de manipulação de dados.
+ - Cachê.
+ - Modelo de dados.
+
+
+9 - O que é transação?
+
+
+10 - Por que o SGBD entrelaça as ações de diferentes transações, ao invés de executá-las sequencialmente?
+

@@ -7,6 +7,7 @@
 #include <set>
 #include <map>
 #include <sstream>
+#include <queue>
 #include "Digrafo.h"
 
 using namespace std;

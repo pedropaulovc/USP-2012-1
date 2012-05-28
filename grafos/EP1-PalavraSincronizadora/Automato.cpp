@@ -25,7 +25,6 @@ void Automato::lerDefinicao() {
 	}
 }
 
-
 void imprimeConjunto(const set<Vertice>& conj) {
 	set<int>::iterator it;
 	for (it = conj.begin(); it != conj.end(); it++)
@@ -33,12 +32,22 @@ void imprimeConjunto(const set<Vertice>& conj) {
 	cout << endl;
 }
 
+class comparador {
+public:
+	bool operator()(const set<Vertice>& c1, const set<Vertice>& c2) {
+		if (c1.size() != c2.size())
+			return c1.size() < c2.size();
+		return c1 < c2;
+	}
+};
+
 string Automato::executarHeuristica1(const set<Vertice>& vertices) {
 	queue<set<Vertice> > fila;
 	map<set<Vertice>, string> caminho;
 	map<set<Vertice>, set<Vertice> > pai;
 	set<set<Vertice> > visitados;
 	set<int>::iterator it;
+	set<set<Vertice>, comparador > adjacentes;
 
 	fila.push(vertices);
 	caminho[vertices] = "";
@@ -62,6 +71,7 @@ string Automato::executarHeuristica1(const set<Vertice>& vertices) {
 		if (atual.size() == 1)
 			break;
 
+		adjacentes.clear();
 		for (int i = 0; i < k; i++) {
 			novo.clear();
 
@@ -73,11 +83,19 @@ string Automato::executarHeuristica1(const set<Vertice>& vertices) {
 				imprimeConjunto(novo);
 
 				visitados.insert(novo);
-				fila.push(novo);
+				adjacentes.insert(novo);
 				pai[novo] = atual;
 				caminho[novo] = string(1, i + 'a');
 			}
 		}
+
+		set<set<Vertice> , comparador>::iterator iter;
+		for (iter = adjacentes.begin(); iter != adjacentes.end(); iter++){
+			fila.push(*iter);
+			cout << "Enfileirado: ";
+			imprimeConjunto(*iter);
+		}
+
 	}
 
 	if (atual.size() != 1) {
@@ -85,23 +103,63 @@ string Automato::executarHeuristica1(const set<Vertice>& vertices) {
 		return "";
 	}
 
-	stringstream ss;
+	string resposta;
 	resultado = PALAVRA_ENCONTRADA;
 
 	if (vertices.size() == 1)
-		ss << "a";
+		resposta = "a";
 
 	while (pai[atual] != atual) {
-		ss << caminho[atual];
+		resposta = caminho[atual] + resposta;
 		atual = pai[atual];
 	}
 
-	return ss.str();
+	return resposta;
 }
 
 string Automato::executarHeuristica2(const set<Vertice>& vertices) {
+	if (vertices.size() == 1) {
+		resultado = PALAVRA_ENCONTRADA;
+		return "a";
+	}
 
-	return "";
+	stringstream ss;
+	set<Vertice> copia(vertices);
+	set<Vertice> escolhidos;
+	set<Vertice> novos;
+	set<Vertice>::iterator it;
+
+	while (copia.size() != 1) {
+		novos.clear();
+		escolhidos.clear();
+
+		it = copia.begin();
+		for (int i = 0; i < 2; i++) {
+			escolhidos.insert(*it);
+			it++;
+		}
+
+		imprimeConjunto(copia);
+		imprimeConjunto(escolhidos);
+		cout << "Resposta parcial: " << ss.str() << endl << endl;
+
+		string respostaEscolhidos = executarHeuristica1(escolhidos);
+		cout << "Parte: " << respostaEscolhidos << endl;
+		if (resultado == AUTOMATO_NAO_SINCRONIZAVEL)
+			return "Autômato não sincronizável.";
+
+		for (it = copia.begin(); it != copia.end(); it++) {
+			Vertice novo = *it;
+			for (unsigned int i = 0; i < respostaEscolhidos.size(); i++)
+				novo = adj[novo][respostaEscolhidos[i] - 'a'];
+			novos.insert(novo);
+		}
+
+		copia = novos;
+		ss << respostaEscolhidos;
+	}
+
+	return ss.str();
 }
 
 string Automato::calcularPalavraSincronizadora(const set<Vertice>& vertices) {
@@ -122,7 +180,7 @@ string Automato::calcularPalavraSincronizadora() {
 
 	vector<subAutomato> tamanhos(subAutomatos.size());
 
-	for(unsigned int i = 0; i < subAutomatos.size(); i++){
+	for (unsigned int i = 0; i < subAutomatos.size(); i++) {
 		tamanhos[i].subComponente = i;
 		tamanhos[i].qtdVertices = subAutomatos[i].size();
 	}
@@ -131,7 +189,8 @@ string Automato::calcularPalavraSincronizadora() {
 
 	vector<string> subPalavras(subAutomatos.size());
 	for (unsigned int i = 0; i < subAutomatos.size(); i++) {
-		string palavra = calcularPalavraSincronizadora(subAutomatos[tamanhos[i].subComponente]);
+		string palavra = calcularPalavraSincronizadora(
+				subAutomatos[tamanhos[i].subComponente]);
 		if (PALAVRA_ENCONTRADA != resultado)
 			break;
 		subPalavras[tamanhos[i].subComponente] = palavra;
@@ -145,7 +204,7 @@ string Automato::calcularPalavraSincronizadora() {
 	vector<Vertice> ordemTopologica = D.obterOrdemTopologica();
 
 	stringstream ss;
-	for(unsigned int i = 0; i < ordemTopologica.size(); i++)
+	for (unsigned int i = 0; i < ordemTopologica.size(); i++)
 		ss << subPalavras[ordemTopologica[i]];
 
 	return ss.str();

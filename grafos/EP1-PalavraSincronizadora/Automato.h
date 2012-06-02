@@ -7,7 +7,6 @@
 #include <set>
 #include <map>
 #include <sstream>
-#include <queue>
 #include "Digrafo.h"
 
 using namespace std;
@@ -38,6 +37,7 @@ public:
 
 	void lerDefinicao();
 	string calcularPalavraSincronizadora();
+	string calcularPalavraSincronizadorav2();
 	string calcularPalavraSincronizadora(const set<Vertice>& vertices);
 	vector<set<Vertice> > executarHeuristica3();
 	vector<set<Vertice> > executarHeuristica3v2();

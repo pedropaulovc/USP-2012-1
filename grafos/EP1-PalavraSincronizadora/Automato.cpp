@@ -25,6 +25,7 @@ void Automato::lerDefinicao() {
 	}
 }
 
+
 void imprimeConjunto(const set<Vertice>& conj) {
 	set<int>::iterator it;
 	for (it = conj.begin(); it != conj.end(); it++)
@@ -32,22 +33,12 @@ void imprimeConjunto(const set<Vertice>& conj) {
 	cout << endl;
 }
 
-class comparador {
-public:
-	bool operator()(const set<Vertice>& c1, const set<Vertice>& c2) {
-		if (c1.size() != c2.size())
-			return c1.size() < c2.size();
-		return c1 < c2;
-	}
-};
-
 string Automato::executarHeuristica1(const set<Vertice>& vertices) {
 	queue<set<Vertice> > fila;
 	map<set<Vertice>, string> caminho;
 	map<set<Vertice>, set<Vertice> > pai;
 	set<set<Vertice> > visitados;
 	set<int>::iterator it;
-	set<set<Vertice>, comparador > adjacentes;
 
 	fila.push(vertices);
 	caminho[vertices] = "";
@@ -59,19 +50,18 @@ string Automato::executarHeuristica1(const set<Vertice>& vertices) {
 		atual = fila.front();
 		fila.pop();
 
-		cout << "Atual: ";
-		imprimeConjunto(atual);
-		cout << "Visitados: " << endl;
-		for (set<set<int> >::iterator iter = visitados.begin();
-				iter != visitados.end(); iter++) {
-			cout << "\t";
-			imprimeConjunto(*iter);
-		}
+//		cout << "Atual: ";
+//		imprimeConjunto(atual);
+//		cout << "Visitados: " << endl;
+//		for (set<set<int> >::iterator iter = visitados.begin();
+//				iter != visitados.end(); iter++) {
+//			cout << "\t";
+//			imprimeConjunto(*iter);
+//		}
 
 		if (atual.size() == 1)
 			break;
 
-		adjacentes.clear();
 		for (int i = 0; i < k; i++) {
 			novo.clear();
 
@@ -79,23 +69,15 @@ string Automato::executarHeuristica1(const set<Vertice>& vertices) {
 				novo.insert(adj[*it][i]);
 
 			if (visitados.find(novo) == visitados.end()) {
-				cout << "Novo: ";
-				imprimeConjunto(novo);
+//				cout << "Novo: ";
+//				imprimeConjunto(novo);
 
 				visitados.insert(novo);
-				adjacentes.insert(novo);
+				fila.push(novo);
 				pai[novo] = atual;
 				caminho[novo] = string(1, i + 'a');
 			}
 		}
-
-		set<set<Vertice> , comparador>::iterator iter;
-		for (iter = adjacentes.begin(); iter != adjacentes.end(); iter++){
-			fila.push(*iter);
-			cout << "Enfileirado: ";
-			imprimeConjunto(*iter);
-		}
-
 	}
 
 	if (atual.size() != 1) {
@@ -103,24 +85,24 @@ string Automato::executarHeuristica1(const set<Vertice>& vertices) {
 		return "";
 	}
 
-	string resposta;
+	stringstream ss;
 	resultado = PALAVRA_ENCONTRADA;
 
 	if (vertices.size() == 1)
-		resposta = "a";
+		ss << "";
 
 	while (pai[atual] != atual) {
-		resposta = caminho[atual] + resposta;
+		ss << caminho[atual];
 		atual = pai[atual];
 	}
 
-	return resposta;
+	return ss.str();
 }
 
 string Automato::executarHeuristica2(const set<Vertice>& vertices) {
 	if (vertices.size() == 1) {
 		resultado = PALAVRA_ENCONTRADA;
-		return "a";
+		return "";
 	}
 
 	stringstream ss;
@@ -160,6 +142,7 @@ string Automato::executarHeuristica2(const set<Vertice>& vertices) {
 	}
 
 	return ss.str();
+
 }
 
 string Automato::calcularPalavraSincronizadora(const set<Vertice>& vertices) {
@@ -168,6 +151,16 @@ string Automato::calcularPalavraSincronizadora(const set<Vertice>& vertices) {
 
 bool comparaConjuntos(subAutomato sa1, subAutomato sa2) {
 	return sa1.qtdVertices < sa2.qtdVertices;
+}
+
+string Automato::calcularPalavraSincronizadorav2(){
+	set<Vertice> vertices;
+	for(int i = 0; i < n; i++)
+		vertices.insert(i);
+	string resposta = executarHeuristica1(vertices);
+	if (AUTOMATO_NAO_SINCRONIZAVEL == resultado)
+		return "Autômato não sincronizável";
+	return resposta;
 }
 
 string Automato::calcularPalavraSincronizadora() {
@@ -180,7 +173,7 @@ string Automato::calcularPalavraSincronizadora() {
 
 	vector<subAutomato> tamanhos(subAutomatos.size());
 
-	for (unsigned int i = 0; i < subAutomatos.size(); i++) {
+	for(unsigned int i = 0; i < subAutomatos.size(); i++){
 		tamanhos[i].subComponente = i;
 		tamanhos[i].qtdVertices = subAutomatos[i].size();
 	}
@@ -189,8 +182,7 @@ string Automato::calcularPalavraSincronizadora() {
 
 	vector<string> subPalavras(subAutomatos.size());
 	for (unsigned int i = 0; i < subAutomatos.size(); i++) {
-		string palavra = calcularPalavraSincronizadora(
-				subAutomatos[tamanhos[i].subComponente]);
+		string palavra = calcularPalavraSincronizadora(subAutomatos[tamanhos[i].subComponente]);
 		if (PALAVRA_ENCONTRADA != resultado)
 			break;
 		subPalavras[tamanhos[i].subComponente] = palavra;
@@ -204,7 +196,7 @@ string Automato::calcularPalavraSincronizadora() {
 	vector<Vertice> ordemTopologica = D.obterOrdemTopologica();
 
 	stringstream ss;
-	for (unsigned int i = 0; i < ordemTopologica.size(); i++)
+	for(unsigned int i = 0; i < ordemTopologica.size(); i++)
 		ss << subPalavras[ordemTopologica[i]];
 
 	return ss.str();
@@ -238,6 +230,14 @@ vector<set<Vertice> > Automato::executarHeuristica3v2() {
 }
 
 vector<set<Vertice> > Automato::executarHeuristica3() {
+//	//Imprimir novo autômato
+//	for (Vertice v = 0; v < n; v++) {
+//		for (int j = 0; j < k; j++)
+//			cout << v << " -> " << adj[v][j] << ";" << endl;
+//	}
+//
+//	cout << endl;
+
 	calcularComponentesFortes();
 	int qtdComponentes = id;
 
@@ -275,6 +275,12 @@ vector<set<Vertice> > Automato::executarHeuristica3() {
 			if (sc[v] != sc[adj[v][j]])
 				adj[v][j] = novosVertices[sc[v]];
 	}
+
+//	//Imprimir novo autômato
+//	for (Vertice v = 0; v < n; v++) {
+//		for (int j = 0; j < k; j++)
+//			cout << v << " -> " << adj[v][j] << ";" << endl;
+//	}
 
 	return subAutomatos;
 }

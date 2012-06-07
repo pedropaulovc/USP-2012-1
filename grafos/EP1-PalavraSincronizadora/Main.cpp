@@ -2,7 +2,7 @@ using namespace std;
 
 #include "Automato.h"
 
-int main(int argc, char **argv) {
+int main_old(int argc, char **argv) {
 	//TODO: Getopts
 	//TODO: Timeout
 

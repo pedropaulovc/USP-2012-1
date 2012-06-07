@@ -27,7 +27,6 @@ public:
 	vector<vector<int> > adj;
 	int V, A;
 
-
 	Digrafo();
 	virtual ~Digrafo();
 

@@ -33,6 +33,7 @@ void imprimeConjunto(const set<Vertice>& conj) {
 	cout << endl;
 }
 
+
 string Automato::executarHeuristica1(const set<Vertice>& vertices) {
 	queue<set<Vertice> > fila;
 	map<set<Vertice>, string> caminho;

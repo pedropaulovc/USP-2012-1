@@ -6,17 +6,23 @@
 CPP_SRCS += \
 ../Automato.cpp \
 ../Digrafo.cpp \
-../Main.cpp 
+../EP1.cpp \
+../Main.cpp \
+../Visitados.cpp 
 
 OBJS += \
 ./Automato.o \
 ./Digrafo.o \
-./Main.o 
+./EP1.o \
+./Main.o \
+./Visitados.o 
 
 CPP_DEPS += \
 ./Automato.d \
 ./Digrafo.d \
-./Main.d 
+./EP1.d \
+./Main.d \
+./Visitados.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

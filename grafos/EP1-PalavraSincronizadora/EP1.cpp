@@ -222,6 +222,46 @@ void executar_heuristica_1(const set<Vertice>& vertices) {
 		fila.pop();
 }
 
+void executar_heuristica_2(const set<Vertice>& vertices) {
+	palavra = "";
+
+	stringstream ss;
+	set<Vertice> copia(vertices);
+	set<Vertice> escolhidos;
+	set<Vertice> novos;
+	set<Vertice>::iterator it;
+
+	while (copia.size() != 1) {
+		novos.clear();
+		escolhidos.clear();
+
+		it = copia.begin();
+		for (int i = 0; i < 2; i++) {
+			escolhidos.insert(*it);
+			it++;
+		}
+
+		cout << "Resposta parcial: " << ss.str() << endl << endl;
+
+		string respostaEscolhidos = executarHeuristica1(escolhidos);
+		if (resultado == AUTOMATO_NAO_SINCRONIZAVEL)
+			return "Autômato não sincronizável.";
+
+		for (it = copia.begin(); it != copia.end(); it++) {
+			Vertice novo = *it;
+			for (unsigned int i = 0; i < respostaEscolhidos.size(); i++)
+				novo = adj[novo][respostaEscolhidos[i] - 'a'];
+			novos.insert(novo);
+		}
+
+		copia = novos;
+		ss << respostaEscolhidos;
+	}
+
+	return ss.str();
+
+}
+
 void calcular_palavra_sincronizadora(const set<Vertice>& vertices) {
 	executar_heuristica_1(vertices);
 }

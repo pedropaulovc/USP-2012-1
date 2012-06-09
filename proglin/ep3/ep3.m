@@ -27,9 +27,9 @@ function [ind x] = fulltableau(A, b, c, m, n, basicas, print)
 	x = zeros(n - 1, 1)
 	
 	while(true)
-		#Encontrando coluna para sair da base
+		#Encontrando coluna para entrar da base
 		j = 2
-		while(j < n && T(1, j) > 0)
+		while(j <= n && T(1, j) > 0)
 			j = j + 1
 		endwhile
 		
@@ -42,9 +42,36 @@ function [ind x] = fulltableau(A, b, c, m, n, basicas, print)
 			return
 		endif
 		
+		#Quais posićões da j-ésima coluna são positivas
+		positivos = []
+		for i = 2:m
+			if (T(i, j) > 0)
+				T(i, :) = T(i, :) / T(i, j)
+				positivos = [positivos i]
+			endif
+		endfor
+
+		#Decidindo qual será a variável a sair da base
+		menor = positivos(1)
 		
 	endwhile
 		
+endfunction
+
+function [menor] = menorlexicografico(a, b)
+	i = 1
+	tam = min(length(a), length(b))
+	while(i <= tam && a(i) == b(i))
+		i = i + 1
+	endwhile
+	
+	if (i <= tam)
+		menor = a(i) < b(i)
+	elseif (length(a) != length(b))
+		menor = length(a) < length(b)
+	else
+		menor = false
+	endif
 endfunction
 
 #Responsável por imprimir na saída padrão uma iteraćão do método simplex segundo
@@ -92,5 +119,5 @@ A = [1 2 2 1 0 0;
 	 2 2 1 0 0 1]
 b = [20 20 20]'
 
-[ind x] = fulltableau(A, b, c, 3, 6, [4 5 6], false)
+#[ind x] = fulltableau(A, b, c, 3, 6, [4 5 6], false)
 #imprime(tableau, 4, 7, 1, [3 3], [2 3 6])

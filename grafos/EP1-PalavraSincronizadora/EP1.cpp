@@ -10,7 +10,10 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <cstdlib>
 #include <sstream>
+#include <ctime>
+#include <climits>
 #include "Visitados.h"
 #include "Digrafo.h"
 
@@ -25,12 +28,14 @@ using namespace std;
 
 #define MAX_N 2048
 #define MAX_K 8
+#define MAX_TENT 1
 #define Vertice int
 
 #define PALAVRA_ENCONTRADA 0
-#define AUTOMATO_NAO_SINCRONIZAVEL 1
-#define TEMPO_EXCEDIDO 2
-#define PROCESSANDO 3
+#define PALAVRA_LONGA 1
+#define AUTOMATO_NAO_SINCRONIZAVEL 2
+#define TEMPO_EXCEDIDO 3
+#define PROCESSANDO 4
 
 typedef struct {
 	string palavra;
@@ -57,6 +62,8 @@ Digrafo D;
 
 vector<set<Vertice> > componentes;
 
+int tempmax;
+
 void ler_entrada() {
 	cin >> N >> K;
 
@@ -74,6 +81,10 @@ void ler_entrada() {
 			adj[v].push_back(w);
 		}
 	}
+}
+
+bool palavra_curta(){
+	return (int) palavra.size() < (N - 1) * (N - 1);
 }
 
 void exibir() {
@@ -187,6 +198,11 @@ void executar_heuristica_1(const set<Vertice>& vertices) {
 
 	estado novo, atual;
 	while (!fila.empty()) {
+		if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+			resultado = TEMPO_EXCEDIDO;
+			return;
+		}
+
 		atual = fila.front();
 		fila.pop();
 
@@ -205,7 +221,7 @@ void executar_heuristica_1(const set<Vertice>& vertices) {
 				debug(cout << "Novo: "; imprime_conjunto(novo.conj));
 
 				visitados.marcar_visitado(novo.conj);
-				novo.palavra = atual.palavra +  string(1, i + 'a');
+				novo.palavra = atual.palavra + string(1, i + 'a');
 				fila.push(novo);
 			}
 		}
@@ -218,59 +234,179 @@ void executar_heuristica_1(const set<Vertice>& vertices) {
 
 	resultado = PALAVRA_ENCONTRADA;
 	palavra = atual.palavra;
-	while(!fila.empty())
+	while (!fila.empty())
 		fila.pop();
 }
 
-void executar_heuristica_2(const set<Vertice>& vertices) {
-	palavra = "";
 
-	stringstream ss;
-	set<Vertice> copia(vertices);
+void executar_heuristica_2(const set<Vertice>& vertices) {
+	vector<Vertice> copia(vertices.begin(), vertices.end());
 	set<Vertice> escolhidos;
 	set<Vertice> novos;
-	set<Vertice>::iterator it;
 
+	string parcial, final = "";;
 	while (copia.size() != 1) {
+		if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+			resultado = TEMPO_EXCEDIDO;
+			return;
+		}
+
 		novos.clear();
 		escolhidos.clear();
 
-		it = copia.begin();
-		for (int i = 0; i < 2; i++) {
-			escolhidos.insert(*it);
-			it++;
+		escolhidos.insert(copia[0]);
+		escolhidos.insert(copia[1]);
+
+		debug(cout << "Escolhidos: " << copia[0] <<
+				" " << copia[1] << endl);
+		executar_heuristica_1(escolhidos);
+
+		if (PALAVRA_ENCONTRADA != resultado)
+			return;
+
+		parcial = palavra;
+
+		for (unsigned int i = 0; i < copia.size(); i++) {
+			for (unsigned int j = i + 1; j < copia.size(); j++) {
+				if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+					resultado = TEMPO_EXCEDIDO;
+					return;
+				}
+
+				if (i == 0 && j == 1)
+					continue;
+				escolhidos.clear();
+
+				escolhidos.insert(copia[i]);
+				escolhidos.insert(copia[j]);
+
+				debug(cout << "Escolhidos: " << copia[i] <<
+						" " << copia[j] << endl);
+				executar_heuristica_1(escolhidos);
+				debug(cout << palavra << endl);
+
+				if (AUTOMATO_NAO_SINCRONIZAVEL == resultado)
+					return;
+
+				if (palavra.size() < parcial.size())
+					parcial = palavra;
+			}
 		}
 
-		cout << "Resposta parcial: " << ss.str() << endl << endl;
+		debug(cout << "Parcial: " << parcial << endl);
 
-		string respostaEscolhidos = executarHeuristica1(escolhidos);
-		if (resultado == AUTOMATO_NAO_SINCRONIZAVEL)
-			return "Autômato não sincronizável.";
-
-		for (it = copia.begin(); it != copia.end(); it++) {
-			Vertice novo = *it;
-			for (unsigned int i = 0; i < respostaEscolhidos.size(); i++)
-				novo = adj[novo][respostaEscolhidos[i] - 'a'];
-			novos.insert(novo);
+		Vertice v;
+		for (unsigned int i = 0; i < copia.size(); i++) {
+			v = copia[i];
+			for (unsigned int j = 0; j < parcial.size(); j++)
+				v = adj[v][parcial[j] - 'a'];
+			novos.insert(v);
 		}
 
-		copia = novos;
-		ss << respostaEscolhidos;
+		debug(cout << "Novo conjunto: " << endl; imprime_conjunto(novos));
+
+		copia.clear();
+		copia.insert(copia.end(), novos.begin(), novos.end());
+		final = final + parcial;
+		debug(cout << "Palavra atualizada: " << final << endl);
 	}
 
-	return ss.str();
+	resultado = PALAVRA_ENCONTRADA;
+	palavra = final;
+}
 
+void executar_heuristica_2_rand(const set<Vertice>& vertices) {
+	vector<Vertice> copia(vertices.begin(), vertices.end());
+	set<Vertice> escolhidos;
+	set<Vertice> novos;
+
+	string parcial, final = "";
+	int rand1, rand2;
+	while (copia.size() != 1) {
+		if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+			resultado = TEMPO_EXCEDIDO;
+			return;
+		}
+
+		novos.clear();
+		escolhidos.clear();
+
+		rand1 = rand() % vertices.size();
+		do
+			rand2 = rand() % vertices.size();
+		while (rand2 == rand1);
+
+		escolhidos.insert(copia[rand1]);
+		escolhidos.insert(copia[rand2]);
+
+		debug(cout << "Escolhidos: " << copia[rand1] <<
+				" " << copia[rand2] << endl);
+		executar_heuristica_1(escolhidos);
+
+		if (PALAVRA_ENCONTRADA != resultado)
+			return;
+
+		parcial = palavra;
+
+		for (int i = 0; i < MAX_TENT; i++){
+			if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+				resultado = TEMPO_EXCEDIDO;
+				return;
+			}
+
+			escolhidos.clear();
+
+			rand1 = rand() % vertices.size();
+			do
+				rand2 = rand() % vertices.size();
+			while (rand2 == rand1);
+
+			escolhidos.insert(copia[rand1]);
+			escolhidos.insert(copia[rand2]);
+
+			debug(cout << "Escolhidos: " << copia[rand1] <<
+					" " << copia[rand2] << endl);
+			executar_heuristica_1(escolhidos);
+			debug(cout << palavra << endl);
+
+			if (AUTOMATO_NAO_SINCRONIZAVEL == resultado)
+				return;
+
+			if (palavra.size() < parcial.size())
+				parcial = palavra;
+		}
+
+		debug(cout << "Parcial: " << parcial << endl);
+
+		Vertice v;
+		for (unsigned int i = 0; i < copia.size(); i++) {
+			v = copia[i];
+			for (unsigned int j = 0; j < parcial.size(); j++)
+				v = adj[v][parcial[j] - 'a'];
+			novos.insert(v);
+		}
+
+		debug(cout << "Novo conjunto: " << endl; imprime_conjunto(novos));
+
+		copia.clear();
+		copia.insert(copia.end(), novos.begin(), novos.end());
+		final = final + parcial;
+		debug(cout << "Palavra atualizada: " << final << endl);
+	}
+
+	resultado = PALAVRA_ENCONTRADA;
+	palavra = final;
 }
 
 void calcular_palavra_sincronizadora(const set<Vertice>& vertices) {
-	executar_heuristica_1(vertices);
+	executar_heuristica_2_rand(vertices);
 }
 
 void calcular_palavra_sincronizadora_v2() {
 	resultado = PROCESSANDO;
 
 	set<Vertice> vertices;
-	for(int i = 0; i < N; i++)
+	for (int i = 0; i < N; i++)
 		vertices.insert(i);
 
 	executar_heuristica_1(vertices);
@@ -283,6 +419,10 @@ void calcular_palavra_sincronizadora() {
 
 	if (AUTOMATO_NAO_SINCRONIZAVEL == resultado)
 		return;
+	if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+		resultado = TEMPO_EXCEDIDO;
+		return;
+	}
 
 	//Vamos calcular a palavra sincronizadora em ordem crescente de
 	//tamanho de subcomponente fortemente conexa e depois juntar
@@ -313,28 +453,37 @@ void calcular_palavra_sincronizadora() {
 	for (int i = 0; i < qtd_componentes; i++)
 		ss << info_componentes[ordem_topologica[i]].palavra;
 
+	resultado = palavra_curta() ? PALAVRA_ENCONTRADA : PALAVRA_LONGA;
 	palavra = ss.str();
 }
 
 void exibir_resultado() {
 	switch (resultado) {
 	case PALAVRA_ENCONTRADA:
-		cout << palavra << endl;
+		cout << palavra.size() << " " << palavra << endl;
 		break;
 	case AUTOMATO_NAO_SINCRONIZAVEL:
-		cout << "Autômato não sincronizável" << endl;
+		cout << "0" << endl;
 		break;
-	default:
-		cout << "Não foi possível encontrar uma palavra "
+	case PALAVRA_LONGA:
+		cout << "-1 " << "Foi encontrada uma palavra sincronizadora longa: "
+			<< palavra << endl;
+		break;
+	case TEMPO_EXCEDIDO:
+		cout << "-1 " << "Não foi possível encontrar uma palavra "
 				<< "sincronizadora no tempo fornecido." << endl;
 		break;
+	default:
+		break;
 	}
+
 }
 
 int main(int argc, char **argv) {
-	//TODO: Getopts
-	//TODO: Timeout
-
+	tempmax = INT_MAX;
+	if (argc > 1)
+		tempmax = atoi(argv[1]);
+	srand (time(NULL));
 	ler_entrada();
 	calcular_palavra_sincronizadora();
 	exibir_resultado();

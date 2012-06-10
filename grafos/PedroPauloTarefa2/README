@@ -1,8 +1,0 @@
-# MAC0328-2012 - Algoritmos em grafos - Tarefa 2: Palavra Sincronizadora
-
-## Autor
-	Pedro Paulo Vezzá Campos - 7538743
-
-## Compilação
-	O programa possui um makefile. Para compilá-lo apenas execute **make**. O
-	executável gerado é **PedroPauloTarefa2**.

@@ -4,25 +4,22 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../Automato.cpp \
 ../Digrafo.cpp \
 ../EP1.cpp \
-../Main.cpp \
-../Visitados.cpp 
+../Visitados.cpp \
+../verificador.cpp 
 
 OBJS += \
-./Automato.o \
 ./Digrafo.o \
 ./EP1.o \
-./Main.o \
-./Visitados.o 
+./Visitados.o \
+./verificador.o 
 
 CPP_DEPS += \
-./Automato.d \
 ./Digrafo.d \
 ./EP1.d \
-./Main.d \
-./Visitados.d 
+./Visitados.d \
+./verificador.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

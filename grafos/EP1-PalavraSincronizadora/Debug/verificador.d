@@ -1,0 +1,1 @@
+verificador.d: ../verificador.cpp

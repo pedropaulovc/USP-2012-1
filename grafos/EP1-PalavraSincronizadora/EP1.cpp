@@ -83,8 +83,8 @@ void ler_entrada() {
 	}
 }
 
-bool palavra_curta(){
-	return (int) palavra.size() < (N - 1) * (N - 1);
+bool palavra_curta() {
+	return (int) palavra.size() <= (N - 1) * (N - 1);
 }
 
 void exibir() {
@@ -198,7 +198,7 @@ void executar_heuristica_1(const set<Vertice>& vertices) {
 
 	estado novo, atual;
 	while (!fila.empty()) {
-		if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+		if (((float) clock()) / CLOCKS_PER_SEC > tempmax) {
 			resultado = TEMPO_EXCEDIDO;
 			return;
 		}
@@ -238,15 +238,16 @@ void executar_heuristica_1(const set<Vertice>& vertices) {
 		fila.pop();
 }
 
-
 void executar_heuristica_2(const set<Vertice>& vertices) {
 	vector<Vertice> copia(vertices.begin(), vertices.end());
 	set<Vertice> escolhidos;
 	set<Vertice> novos;
 
-	string parcial, final = "";;
+	string parcial, final = "";
 	while (copia.size() != 1) {
-		if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+		debug(cout << copia.size() << endl);
+
+		if (((float) clock()) / CLOCKS_PER_SEC > tempmax) {
 			resultado = TEMPO_EXCEDIDO;
 			return;
 		}
@@ -268,7 +269,7 @@ void executar_heuristica_2(const set<Vertice>& vertices) {
 
 		for (unsigned int i = 0; i < copia.size(); i++) {
 			for (unsigned int j = i + 1; j < copia.size(); j++) {
-				if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+				if (((float) clock()) / CLOCKS_PER_SEC > tempmax) {
 					resultado = TEMPO_EXCEDIDO;
 					return;
 				}
@@ -315,6 +316,70 @@ void executar_heuristica_2(const set<Vertice>& vertices) {
 	palavra = final;
 }
 
+void executar_heuristica_2_min_iter(const set<Vertice>& vertices) {
+	vector<Vertice> copia(vertices.begin(), vertices.end());
+	set<Vertice> escolhidos;
+	set<Vertice> min, cand;
+
+	string parcial, final = "";
+	while (copia.size() != 1) {
+		if (((float) clock()) / CLOCKS_PER_SEC > tempmax) {
+			resultado = TEMPO_EXCEDIDO;
+			return;
+		}
+
+		min.clear();
+		min.insert(copia.begin(), copia.end());
+
+		debug(cout << min.size() << endl);
+		for (unsigned int i = 0; i < copia.size(); i++) {
+			for (unsigned int j = i + 1; j < copia.size(); j++) {
+				if (((float) clock()) / CLOCKS_PER_SEC > tempmax) {
+					resultado = TEMPO_EXCEDIDO;
+					return;
+				}
+
+				cand.clear();
+				escolhidos.clear();
+
+				escolhidos.insert(copia[i]);
+				escolhidos.insert(copia[j]);
+
+//				debug(cout << "Escolhidos: " << copia[i] <<
+//						" " << copia[j] << endl);
+				executar_heuristica_1(escolhidos);
+
+				if (AUTOMATO_NAO_SINCRONIZAVEL == resultado)
+					return;
+
+				Vertice v;
+				for (unsigned int i = 0; i < copia.size(); i++) {
+					v = copia[i];
+					for (unsigned int j = 0; j < palavra.size(); j++)
+						v = adj[v][palavra[j] - 'a'];
+					cand.insert(v);
+				}
+
+				if(cand.size() < min.size()){
+					parcial = palavra;
+					min.clear();
+					min.insert(cand.begin(), cand.end());
+				}
+			}
+		}
+
+//		debug(cout << "Novo conjunto: " << endl; imprime_conjunto(min));
+
+		copia.clear();
+		copia.insert(copia.end(), min.begin(), min.end());
+		final = final + parcial;
+		debug(cout << "Palavra atualizada: " << final << endl);
+	}
+
+	resultado = PALAVRA_ENCONTRADA;
+	palavra = final;
+}
+
 void executar_heuristica_2_rand(const set<Vertice>& vertices) {
 	vector<Vertice> copia(vertices.begin(), vertices.end());
 	set<Vertice> escolhidos;
@@ -323,7 +388,8 @@ void executar_heuristica_2_rand(const set<Vertice>& vertices) {
 	string parcial, final = "";
 	int rand1, rand2;
 	while (copia.size() != 1) {
-		if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+		debug(cout << copia.size() << endl);
+		if (((float) clock()) / CLOCKS_PER_SEC > tempmax) {
 			resultado = TEMPO_EXCEDIDO;
 			return;
 		}
@@ -331,9 +397,9 @@ void executar_heuristica_2_rand(const set<Vertice>& vertices) {
 		novos.clear();
 		escolhidos.clear();
 
-		rand1 = rand() % vertices.size();
+		rand1 = rand() % copia.size();
 		do
-			rand2 = rand() % vertices.size();
+			rand2 = rand() % copia.size();
 		while (rand2 == rand1);
 
 		escolhidos.insert(copia[rand1]);
@@ -348,17 +414,17 @@ void executar_heuristica_2_rand(const set<Vertice>& vertices) {
 
 		parcial = palavra;
 
-		for (int i = 0; i < MAX_TENT; i++){
-			if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+		for (int i = 0; i < MAX_TENT; i++) {
+			if (((float) clock()) / CLOCKS_PER_SEC > tempmax) {
 				resultado = TEMPO_EXCEDIDO;
 				return;
 			}
 
 			escolhidos.clear();
 
-			rand1 = rand() % vertices.size();
+			rand1 = rand() % copia.size();
 			do
-				rand2 = rand() % vertices.size();
+				rand2 = rand() % copia.size();
 			while (rand2 == rand1);
 
 			escolhidos.insert(copia[rand1]);
@@ -419,7 +485,7 @@ void calcular_palavra_sincronizadora() {
 
 	if (AUTOMATO_NAO_SINCRONIZAVEL == resultado)
 		return;
-	if (((float) clock())/CLOCKS_PER_SEC > tempmax){
+	if (((float) clock()) / CLOCKS_PER_SEC > tempmax) {
 		resultado = TEMPO_EXCEDIDO;
 		return;
 	}
@@ -453,8 +519,8 @@ void calcular_palavra_sincronizadora() {
 	for (int i = 0; i < qtd_componentes; i++)
 		ss << info_componentes[ordem_topologica[i]].palavra;
 
-	resultado = palavra_curta() ? PALAVRA_ENCONTRADA : PALAVRA_LONGA;
 	palavra = ss.str();
+	resultado = palavra_curta() ? PALAVRA_ENCONTRADA : PALAVRA_LONGA;
 }
 
 void exibir_resultado() {
@@ -467,7 +533,7 @@ void exibir_resultado() {
 		break;
 	case PALAVRA_LONGA:
 		cout << "-1 " << "Foi encontrada uma palavra sincronizadora longa: "
-			<< palavra << endl;
+				<< palavra << endl;
 		break;
 	case TEMPO_EXCEDIDO:
 		cout << "-1 " << "Não foi possível encontrar uma palavra "
@@ -483,7 +549,7 @@ int main(int argc, char **argv) {
 	tempmax = INT_MAX;
 	if (argc > 1)
 		tempmax = atoi(argv[1]);
-	srand (time(NULL));
+	srand(time(NULL));
 	ler_entrada();
 	calcular_palavra_sincronizadora();
 	exibir_resultado();

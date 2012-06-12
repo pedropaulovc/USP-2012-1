@@ -1,14 +1,35 @@
 #Comando inócuo para o octave não achar que o arquivo é um function script
 1;
 
+#Responsável por dados os dados de entrada do problema executar o método simplex de
+#duas fases e retornar:
+# ind = 0 e a solução ótima x do PL
+# ind = 1 se a solução for inviável
+# ind = -1 se o custo ótimo for -INF.
+#Parâmetros:
+# - A: Matriz de coeficientes das restrições
+# - b: Vetor de independentes das restrições
+# - c: Vetor de custos
+# - m: Número de linhas de A
+# - n: Número de colunas de A
+# - print: true para imprimir as iterações ou false caso contrário.
 function [ind x] = simplex(A,b,c,m,n,print)
 	x = zeros(n, 1);
+	
+	##FASE I
+	if(print)
+		printf("Simplex: Fase 1\n");
+	endif
+	
+	#Passo 1 - Alteramos as restrições para que b >= 0
 	for i = 1:m
 		if(b(i) < 0)
 			A(i, :) = A(i, :) * -1;
 			b(i) = -b(i);
 		endif
 	endfor
+	
+	#Passo 2 - Introduzimos as variáveis auxiliares e o vetor de custos do problema auxiliar
 	A = [A eye(m)];
 	custoAux = [zeros(1, n) ones(1, m)]';
 	basicas = zeros(1, m);
@@ -16,28 +37,39 @@ function [ind x] = simplex(A,b,c,m,n,print)
 		basicas(i) = n + i;
 	endfor
 	
-	[ind T basicas] = fulltableau(A, b, custoAux, m, n + m, basicas, print);
+	#Resolvemos o problema auxiliar 
+	[T] = montartableau(A, b, custoAux, basicas);
+	[ind T basicas] = fulltableau(T, m, n + m, basicas, print);
 	
-	#Problema auxiliar de custo ótimo > 0. Problema original inviável.
+	#Passo 3 - Problema auxiliar de custo ótimo > 0. Problema original inviável.
 	if(T(1, 1) < 0)
 		ind = 1
+		
+		if(print)
+			printf("Problema inviável.\n");
+		endif
 		return
 	endif
-		
-	i = 2
+	
+	#Passo 4 - Removemos as variáveis auxiliares da base
+	i = 2;
 	while i <= m + 1
+		#Se uma variável auxiliar está na base
 		if(basicas(i - 1) > n)
+			#Verificamos se na linha da variável auxiliar e nas colunas correspondentes
+			#às variáveis originais há alguma posição com valor > 0
 			j = 2;
 			while(j <= n + 1 && T(i, j) == 0)
 				j = j + 1;
 			endwhile
 			
+			#Se todas as posições são iguais a zero, removemos a linha
 			if(j > n + 1)
 				T = [T(1:i - 1, :); T(i + 1:m + 1, :)];
 				basicas = [basicas(1:i - 2) basicas(i: m)];
 				m = m - 1;
-				imprime(T, m + 1, n + m + 1, 0, [-1 -1], basicas);
 				continue;
+			#Senão, pivotamos, fazendo entrar uma variável original no lugar de uma artificial
 			else
 				T(i, :) = T(i, :) / T(i, j);
 
@@ -50,54 +82,73 @@ function [ind x] = simplex(A,b,c,m,n,print)
 
 				basicas(i - 1) = j - 1;
 			endif
-			imprime(T, m + 1, n + m + 1, 0, [-1 -1], basicas);
 		endif
 		
 		i = i + 1;
 	endwhile
 	
-	T = T(1:m + 1, 1:n + 1)
-	T(1, 1) = -c(basicas)' * T(2:m + 1, 1)
-	T(1, 2:n + 1) = c' - c(basicas)' * T(2:m+1, 2:n+1)
+	#FASE II
+	if(print)
+		printf("Simplex: Fase 2\n");
+	endif
+
+	#Passo 1 - Reaproveitamos o tableau obtido da fase I para a fase II. Removemos 
+	#as variáveis auxiliares.
+	T = T(1:m + 1, 1:n + 1);
 	
+	#Passo 2 - Computamos os custos reduzidos com o vetor de custos original
+	T(1, 1) = -c(basicas)' * T(2:m + 1, 1);
+	T(1, 2:n + 1) = c' - c(basicas)' * T(2:m+1, 2:n+1);
 	
+	#Passo 3 - Aplicamos o método simplex ao problema original
+	[ind T basicas] = fulltableau(T, m, n, basicas, print);
+	
+	#Calculamos a resposta final
+	for i = 1:m
+		x(basicas(i)) = T(i + 1, 1);
+	endfor
+	
+	if(print)
+		if(ind == -1)
+			printf("Custo ótimo é menos infinito\n");
+		else
+			printf("Solução ótima encontrada com custo %.3f:\n", -T(1,1));
+			x
+		endif
+	endif
 	
 endfunction
 
-function [T] = montartableau(A, b, c, m, n, basicas)
-	invB = inv(A(:, basicas))
-	sol = invB * b
-	cB = c(basicas)
-	custo = -cB' * sol
-	U = invB * A
-	custosRed = c' - cB' * U
-	
-	m = m + 1;
-	n = n + 1;
-	T = [custo custosRed; sol U];
-
-endfunction
-
-#Responsável por realizar as iteraćões do simplex usando tableau dados:
-# - A: Matriz de coeficientes das restrićões
-# - b: Vetor de independentes das restrićões
+#Responsável por dados os dados de entrada do problema produzir um tableau inicial
+# - A: Matriz de coeficientes das restrições
+# - b: Vetor de independentes das restrições
 # - c: Vetor de custos
 # - m: Número de linhas de A
 # - n: Número de colunas de A
 # - basicas: Vetor de variáveis básicas. Ex: Se x1, x4 e x2 estão na base 
 # nesta ordem, então basicas == [1 4 2]
-# - print: true para imprimir as iteraćões ou false caso contrário.
-function [ind T basicas] = fulltableau(A, b, c, m, n, basicas, print)
-	invB = inv(A(:, basicas))
-	sol = invB * b
-	cB = c(basicas)
-	custo = -cB' * sol
-	U = invB * A
-	custosRed = c' - cB' * U
+function [T] = montartableau(A, b, c, basicas)
+	invB = inv(A(:, basicas));
+	sol = invB * b;
+	cB = c(basicas);
+	custo = -cB' * sol;
+	U = invB * A;
+	custosRed = c' - cB' * U;
 	
+	T = [custo custosRed; sol U];
+
+endfunction
+
+#Responsável por realizar as iterações do simplex usando tableau dados:
+# - T: Tableau precalculado (Vindo de montartableau() por exemplo)
+# - m: Número de linhas do tableau menos 1
+# - n: Número de colunas do tableau menos 1
+# - basicas: Vetor de variáveis básicas. Ex: Se x1, x4 e x2 estão na base 
+# nesta ordem, então basicas == [1 4 2]
+# - print: true para imprimir as iterações ou false caso contrário.
+function [ind T basicas] = fulltableau(T, m, n, basicas, print)
 	m = m + 1;
 	n = n + 1;
-	T = [custo custosRed; sol U];
 	
 	iter = 1;
 	while(true)
@@ -117,7 +168,7 @@ function [ind T basicas] = fulltableau(A, b, c, m, n, basicas, print)
 			return
 		endif
 		
-		#Quais posićões da j-ésima coluna são positivas
+		#Quais posições da j-ésima coluna são positivas
 		linhaPivo = [];
 		iPivo = -1;
 		for i = 2:m
@@ -161,6 +212,7 @@ function [ind T basicas] = fulltableau(A, b, c, m, n, basicas, print)
 		
 endfunction
 
+#Responsável por dizer se uma linha a é menor lexicograficamente que a linha b
 function [menor] = menorlexicografico(a, b)
 	i = 1;
 	tam = min(length(a), length(b));
@@ -177,19 +229,19 @@ function [menor] = menorlexicografico(a, b)
 	endif
 endfunction
 
-#Responsável por imprimir na saída padrão uma iteraćão do método simplex segundo
-#a especificaćão do EP. Parâmetros:
-# - tableau: O tableau atual da iteraćão atual
+#Responsável por imprimir na saída padrão uma iteração do método simplex segundo
+#a especificação do EP. Parâmetros:
+# - tableau: O tableau atual da iteração atual
 # - m: Quantidade de linhas do tableau
 # - n: Quantidade de colunas do tableau
-# - iter: Número da iteraćão atual
+# - iter: Número da iteração atual
 # - pivo: Vetor indicando quais as coordenadas no tableau do pivô escolhido
 # - basicas: Vetor de variáveis básicas. Ex: Se x1, x4 e x2 estão na base 
 # nesta ordem, então basicas == [1 4 2]
-#Observaćao: A funćão considera que o tableau inclui as 0-ésimas linha e coluna
+#Observaçao: A função considera que o tableau inclui as 0-ésimas linha e coluna
 #nessas primeiras.
 function imprime(tableau, m, n, iter, pivo, basicas)
-	printf("Iteracao %d\n", iter);
+	printf("Iteração %d\n", iter);
 	printf("           |");
 	for i =  1:n - 1
 		printf(" x%-7d|", i);
@@ -214,7 +266,7 @@ function imprime(tableau, m, n, iter, pivo, basicas)
 			endif
 		endfor
 	endfor
-	printf("\n");
+	printf("\n\n");
 endfunction
 
 c = [-10 -12 -12 0 0 0]';
@@ -223,13 +275,18 @@ A = [1 2 2 1 0 0;
 	 2 2 1 0 0 1];
 b = [20 20 20]';
 
-#[ind x] = fulltableau(A, b, c, 3, 6, [4 5 6], false)
-
 c = [1 1 1 0]';
 A = [1 2 3 0;
 	 -1 2 6 0;
 	 0 4 9 0;
 	 0 0 3 1];
 b = [3 2 5 1]';
+
+A = [1 2 3 0;
+	 -1 1 6 0;
+	 1 4 3 0;
+	 4 3 3 1];
+b = [6 6 8 11]';
+c = [1 1 1 5]';
 
 [ind x] = simplex(A,b,c,4,4,true)

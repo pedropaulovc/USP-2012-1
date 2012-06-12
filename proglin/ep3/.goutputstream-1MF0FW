@@ -1,0 +1,7 @@
+#Comando inócuo para o octave não achar que o arquivo é um function script
+1;
+
+#[ind x] = simplex(A,b,c,m,n,print)
+
+#TODO: Controlar erros de arredondamento
+#Responsável por realizar as itera

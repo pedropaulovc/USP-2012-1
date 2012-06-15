@@ -1,11 +1,15 @@
 #Comando inócuo para o octave não achar que o arquivo é um function script
 1;
 
+#Definindo o epsilon utilizado pelo programa
+eps = sqrt(eps);
+
 #Responsável por dados os dados de entrada do problema executar o método simplex de
 #duas fases e retornar:
 # ind = 0 e a solução ótima x do PL
 # ind = 1 se a solução for inviável
 # ind = -1 se o custo ótimo for -INF.
+# Nos casos de ind = 1 ou -1, x será um vetor de zeros com n posições.
 #Parâmetros:
 # - A: Matriz de coeficientes das restrições
 # - b: Vetor de independentes das restrições
@@ -29,16 +33,17 @@ function [ind x] = simplex(A,b,c,m,n,print)
 		endif
 	endfor
 	
-	#Passo 2 - Introduzimos as variáveis auxiliares e o vetor de custos do problema auxiliar
-	A = [A eye(m)];
-	custoAux = [zeros(1, n) ones(1, m)]';
-	basicas = zeros(1, m);
+	#Passo 2 - Montamos o tableau introduzindo as variáveis auxiliares e
+	#o vetor de custos do problema auxiliar
+
+	basicas = zeros(1, m)';
 	for i = 1:m
 		basicas(i) = n + i;
 	endfor
 	
-	#Resolvemos o problema auxiliar 
-	[T] = montartableau(A, b, custoAux, basicas);
+	T = [-sum(b) -sum(A) zeros(1, m); b A eye(m)];
+	
+	#Resolvemos o problema auxiliar
 	[ind T basicas] = fulltableau(T, m, n + m, basicas, print);
 	
 	#Passo 3 - Problema auxiliar de custo ótimo > 0. Problema original inviável.
@@ -65,8 +70,8 @@ function [ind x] = simplex(A,b,c,m,n,print)
 			
 			#Se todas as posições são iguais a zero, removemos a linha
 			if(j > n + 1)
-				T = [T(1:i - 1, :); T(i + 1:m + 1, :)];
-				basicas = [basicas(1:i - 2) basicas(i: m)];
+				T(i, :) = [];
+				basicas(i - 1) = [];
 				m = m - 1;
 				continue;
 			#Senão, pivotamos, fazendo entrar uma variável original no lugar de uma artificial
@@ -119,26 +124,6 @@ function [ind x] = simplex(A,b,c,m,n,print)
 	
 endfunction
 
-#Responsável por dados os dados de entrada do problema produzir um tableau inicial
-# - A: Matriz de coeficientes das restrições
-# - b: Vetor de independentes das restrições
-# - c: Vetor de custos
-# - m: Número de linhas de A
-# - n: Número de colunas de A
-# - basicas: Vetor de variáveis básicas. Ex: Se x1, x4 e x2 estão na base 
-# nesta ordem, então basicas == [1 4 2]
-function [T] = montartableau(A, b, c, basicas)
-	invB = inv(A(:, basicas));
-	sol = invB * b;
-	cB = c(basicas);
-	custo = -cB' * sol;
-	U = invB * A;
-	custosRed = c' - cB' * U;
-	
-	T = [custo custosRed; sol U];
-
-endfunction
-
 #Responsável por realizar as iterações do simplex usando tableau dados:
 # - T: Tableau precalculado (Vindo de montartableau() por exemplo)
 # - m: Número de linhas do tableau menos 1
@@ -152,7 +137,7 @@ function [ind T basicas] = fulltableau(T, m, n, basicas, print)
 	
 	iter = 1;
 	while(true)
-		#Encontrando coluna para entrar da base
+		#Encontrando variável para entrar da base via regra de Bland
 		jPivo = 2;
 		while(jPivo <= n && T(1, jPivo) >= 0)
 			jPivo = jPivo + 1;
@@ -168,31 +153,34 @@ function [ind T basicas] = fulltableau(T, m, n, basicas, print)
 			return
 		endif
 		
-		#Quais posições da j-ésima coluna são positivas
-		linhaPivo = [];
-		iPivo = -1;
+		#Encontrando a variável para sair da base via regra de Bland.
+		iPivo = -1; #Número da linha do pivô no tableau
+		tetaPivo = -1; #Valor de teta para o pivô
+		indicePivo = -1; #Índice da variável básica correspondente ao pivô
+		
 		for i = 2:m
-			if (T(i, jPivo) > 0)
-				cand = T(i, :) / T(i, jPivo);
-				if(length(linhaPivo) == 0)
-					linhaPivo = cand;
-					iPivo = i;
-				elseif(menorlexicografico(cand, linhaPivo))
-					linhaPivo = cand;
-					iPivo = i;
-				endif
+			if (T(i, jPivo) <= 0)
+				continue;
+			endif
+			
+			cand = T(i, 1) / T(i, jPivo);
+			if (iPivo == -1 || cand < tetaPivo || (cand == tetaPivo && basicas(i - 1) < indicePivo))
+				tetaPivo = cand;
+				indicePivo = basicas(i - 1);
+				iPivo = i;
 			endif
 		endfor
 
-		#Podemos reduzir o custo indefinidamente.
+		#Encontramos o pivô caso ele exista. Imprimimos
+		if(print)
+			imprime(T, m, n, iter, [iPivo jPivo], basicas);
+		endif
+
+		#Se não encontramos a linha do pivô, 
+		#podemos reduzir o custo indefinidamente.
 		if(iPivo == -1)
 			ind = -1;
 			return;
-		endif
-
-		#Encontramos o pivô. Imprimimos
-		if(print)
-			imprime(T, m, n, iter, [iPivo jPivo], basicas);
 		endif
 
 		#Pivotamos
@@ -212,22 +200,6 @@ function [ind T basicas] = fulltableau(T, m, n, basicas, print)
 		
 endfunction
 
-#Responsável por dizer se uma linha a é menor lexicograficamente que a linha b
-function [menor] = menorlexicografico(a, b)
-	i = 1;
-	tam = min(length(a), length(b));
-	while(i <= tam && a(i) == b(i))
-		i = i + 1;
-	endwhile
-	
-	if (i <= tam)
-		menor = a(i) < b(i);
-	elseif (length(a) != length(b))
-		menor = length(a) < length(b);
-	else
-		menor = false;
-	endif
-endfunction
 
 #Responsável por imprimir na saída padrão uma iteração do método simplex segundo
 #a especificação do EP. Parâmetros:
@@ -269,6 +241,16 @@ function imprime(tableau, m, n, iter, pivo, basicas)
 	printf("\n\n");
 endfunction
 
+function [comp] = compare(x, y)
+	if abs(x - y) < eps
+		comp = 0;
+	elseif (x > y)
+		comp = 1;
+	else
+		comp = -1;
+	endif
+endfunction
+
 c = [-10 -12 -12 0 0 0]';
 A = [1 2 2 1 0 0;
 	 2 1 2 0 1 0;
@@ -289,4 +271,24 @@ A = [1 2 3 0;
 b = [6 6 8 11]';
 c = [1 1 1 5]';
 
-[ind x] = simplex(A,b,c,4,4,true)
+A = [1 2 3 0;
+	 -1 1 6 0;
+	 1 4 3 0;
+	 4 3 3 1];
+b = [6 6 8 11]';
+c = [1 1 1 5]';
+
+A = [1 2 2 1 0 0;
+	 2 1 2 0 1 0;
+	 2 2 1 0 0 1];
+b = [20 20 20]';
+c = [-10 -12 -12 0 0 0]';
+
+A = [1 1 1;
+	 2 2 2;
+	 3 3 3;
+	 4 4 4];
+b = [3 6 9 12]';
+c = [1 1 1]';
+
+[ind x] = simplex(A,b,c,4,3,true)

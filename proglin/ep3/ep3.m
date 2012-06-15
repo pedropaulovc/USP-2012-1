@@ -7,8 +7,7 @@
 ## Neste arquivo está implementada a função simplex() responsável por resolver
 ## problemas de programação linear no formato padrão e funções auxiliares ao EP.
 
-#Definindo o epsilon utilizado pelo programa
-eps = sqrt(eps);
+1;
 
 #Responsável por dados os dados de entrada do problema executar o método simplex de
 #duas fases e retornar:
@@ -50,11 +49,11 @@ function [ind x] = simplex(A,b,c,m,n,print)
 	T = [-sum(b) -sum(A) zeros(1, m); b A eye(m)];
 	
 	#Resolvemos o problema auxiliar
-	[ind T basicas] = fulltableau(T, m + 1, n + m + 1, basicas, print);
+	[ind T basicas iter] = fulltableau(T, m + 1, n + m + 1, basicas, print);
 	
 	#Passo 3 - Problema auxiliar de custo ótimo > 0. Problema original inviável.
 	if(compare(T(1, 1), 0) < 0)
-		ind = 1
+		ind = 1;
 		
 		if(print)
 			printf("Problema inviável.\n");
@@ -64,6 +63,8 @@ function [ind x] = simplex(A,b,c,m,n,print)
 	
 	#Passo 4 - Removemos as variáveis auxiliares da base
 	i = 2;
+	iter = iter + 1;
+	mAntigo = m;
 	while i <= m + 1
 		#Se uma variável auxiliar está na base
 		if(basicas(i - 1) > n)
@@ -79,6 +80,11 @@ function [ind x] = simplex(A,b,c,m,n,print)
 				T(i, :) = [];
 				basicas(i - 1) = [];
 				m = m - 1;
+				
+				if(print)
+					imprime(T, m + 1, mAntigo + n + 1, iter, [-1 -1], basicas);
+				endif
+				iter = iter + 1;
 				continue;
 			#Senão, pivotamos, fazendo entrar uma variável original no lugar de uma artificial
 			else
@@ -92,6 +98,11 @@ function [ind x] = simplex(A,b,c,m,n,print)
 				endfor
 
 				basicas(i - 1) = j - 1;
+				
+				if(print)
+					imprime(T, m + 1, mAntigo + n + 1, iter, [-1 -1], basicas);
+				endif
+				iter = iter + 1;
 			endif
 		endif
 		
@@ -112,7 +123,7 @@ function [ind x] = simplex(A,b,c,m,n,print)
 	T(1, 2:n + 1) = c' - c(basicas)' * T(2:m+1, 2:n+1);
 	
 	#Passo 3 - Aplicamos o método simplex ao problema original
-	[ind T basicas] = fulltableau(T, m + 1, n + 1, basicas, print);
+	[ind T basicas iter] = fulltableau(T, m + 1, n + 1, basicas, print);
 	
 	#Calculamos a resposta final
 	for i = 1:m
@@ -137,7 +148,7 @@ endfunction
 # - basicas: Vetor de variáveis básicas. Ex: Se x1, x4 e x2 estão na base 
 # nesta ordem, então basicas == [1 4 2]
 # - print: true para imprimir as iterações ou false caso contrário.
-function [ind T basicas] = fulltableau(T, m, n, basicas, print)
+function [ind T basicas iter] = fulltableau(T, m, n, basicas, print)
 	iter = 1;
 	while(true)
 		#Encontrando variável para entrar da base via regra de Bland
@@ -234,8 +245,9 @@ function imprime(tableau, m, n, iter, pivo, basicas)
 		printf("----------");
 	endfor
 	for i = 2:m
-		printf("\nx%-1d", basicas(i - 1));
-		for j = 1:n
+		printf("\nx%-2d", basicas(i - 1));
+		printf("%7.3f |", tableau(i, 1));
+		for j = 2:n
 			printf("%8.3f", tableau(i, j));
 			if (i == pivo(1) && j == pivo(2))
 				printf("*|");
@@ -256,7 +268,7 @@ endfunction
 # 1 se x > y
 # -1 caso contrário
 function [comp] = compare(x, y)
-	if abs(x - y) <= eps
+	if (abs(x - y) <= 1.4901e-08)
 		comp = 0;
 	elseif (x > y)
 		comp = 1;

@@ -102,7 +102,7 @@ Nesta seção serão apresentadas as funções implementadas no EP, contendo uma
 
 \subsection*{\texttt{[comp] = compare(x, y)}}
 \begin{description}
-	\item[Descrição] Responsável por comparar números considerando erros de arredondamento. Adota \texttt{eps} como erro tolerável.
+	\item[Descrição] Responsável por comparar números considerando erros de arredondamento. Adota \texttt{1.4901e-08} (A raiz quadrada do $\epsilon$ de uma máquina de que opera com números de precisão dupla) como erro tolerável.
 	\item[Parâmetros] 
 		\begin{description}
 		 \item[x] Primeiro número a ser comparado

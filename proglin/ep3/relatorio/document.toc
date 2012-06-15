@@ -1,0 +1,10 @@
+\select@language {brazil}
+\contentsline {chapter}{\numberline {1}Hist\IeC {\'o}ria da computa\IeC {\c c}\IeC {\~a}o}{3}
+\contentsline {section}{\numberline {1.1}Pr\IeC {\'e}-Hist\IeC {\'o}ria e Antiguidade}{3}
+\contentsline {section}{\numberline {1.2}Da Idade Moderna at\IeC {\'e} 1900}{4}
+\contentsline {section}{\numberline {1.3}De 1900 aos dias atuais}{5}
+\contentsline {chapter}{\numberline {2}Hist\IeC {\'o}ria das redes de computadores}{9}
+\contentsline {section}{\numberline {2.1}Telecomunica\IeC {\c c}\IeC {\~o}es anal\IeC {\'o}gicas}{9}
+\contentsline {section}{\numberline {2.2}Telecomunica\IeC {\c c}\IeC {\~o}es digitais e a Guerra}{10}
+\contentsline {section}{\numberline {2.3}A Internet e a WWW}{10}
+\contentsline {section}{\numberline {2.4}\IeC {\'U}ltimos avan\IeC {\c c}os}{12}

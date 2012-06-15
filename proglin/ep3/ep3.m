@@ -1,5 +1,11 @@
-#Comando inócuo para o octave não achar que o arquivo é um function script
-1;
+## MAC0315 - 2012 - PROGRAMAÇÃO LINEAR
+## EP3 - IMPLEMENTAÇÃO DO MÉTODO SIMPLEX
+##
+## ALUNOS: GUSTAVO PEREZ KATAGUE - 6797143
+##         PEDRO PAULO VEZZÁ CAMPOS - 7538743
+##
+## Neste arquivo está implementada a função simplex() responsável por resolver
+## problemas de programação linear no formato padrão e funções auxiliares ao EP.
 
 #Definindo o epsilon utilizado pelo programa
 eps = sqrt(eps);
@@ -12,7 +18,7 @@ eps = sqrt(eps);
 # Nos casos de ind = 1 ou -1, x será um vetor de zeros com n posições.
 #Parâmetros:
 # - A: Matriz de coeficientes das restrições
-# - b: Vetor de independentes das restrições
+# - b: Vetor de termos independentes das restrições
 # - c: Vetor de custos
 # - m: Número de linhas de A
 # - n: Número de colunas de A
@@ -27,7 +33,7 @@ function [ind x] = simplex(A,b,c,m,n,print)
 	
 	#Passo 1 - Alteramos as restrições para que b >= 0
 	for i = 1:m
-		if(b(i) < 0)
+		if(compare(b(i), 0) < 0)
 			A(i, :) = A(i, :) * -1;
 			b(i) = -b(i);
 		endif
@@ -44,10 +50,10 @@ function [ind x] = simplex(A,b,c,m,n,print)
 	T = [-sum(b) -sum(A) zeros(1, m); b A eye(m)];
 	
 	#Resolvemos o problema auxiliar
-	[ind T basicas] = fulltableau(T, m, n + m, basicas, print);
+	[ind T basicas] = fulltableau(T, m + 1, n + m + 1, basicas, print);
 	
 	#Passo 3 - Problema auxiliar de custo ótimo > 0. Problema original inviável.
-	if(T(1, 1) < 0)
+	if(compare(T(1, 1), 0) < 0)
 		ind = 1
 		
 		if(print)
@@ -64,7 +70,7 @@ function [ind x] = simplex(A,b,c,m,n,print)
 			#Verificamos se na linha da variável auxiliar e nas colunas correspondentes
 			#às variáveis originais há alguma posição com valor > 0
 			j = 2;
-			while(j <= n + 1 && T(i, j) == 0)
+			while(j <= n + 1 && compare(T(i, j), 0) == 0)
 				j = j + 1;
 			endwhile
 			
@@ -106,7 +112,7 @@ function [ind x] = simplex(A,b,c,m,n,print)
 	T(1, 2:n + 1) = c' - c(basicas)' * T(2:m+1, 2:n+1);
 	
 	#Passo 3 - Aplicamos o método simplex ao problema original
-	[ind T basicas] = fulltableau(T, m, n, basicas, print);
+	[ind T basicas] = fulltableau(T, m + 1, n + 1, basicas, print);
 	
 	#Calculamos a resposta final
 	for i = 1:m
@@ -125,21 +131,18 @@ function [ind x] = simplex(A,b,c,m,n,print)
 endfunction
 
 #Responsável por realizar as iterações do simplex usando tableau dados:
-# - T: Tableau precalculado (Vindo de montartableau() por exemplo)
-# - m: Número de linhas do tableau menos 1
-# - n: Número de colunas do tableau menos 1
+# - T: Tableau precalculado (Contendo as 0-ésimas linha e coluna).
+# - m: Número de linhas do tableau
+# - n: Número de colunas do tableau
 # - basicas: Vetor de variáveis básicas. Ex: Se x1, x4 e x2 estão na base 
 # nesta ordem, então basicas == [1 4 2]
 # - print: true para imprimir as iterações ou false caso contrário.
 function [ind T basicas] = fulltableau(T, m, n, basicas, print)
-	m = m + 1;
-	n = n + 1;
-	
 	iter = 1;
 	while(true)
 		#Encontrando variável para entrar da base via regra de Bland
 		jPivo = 2;
-		while(jPivo <= n && T(1, jPivo) >= 0)
+		while(jPivo <= n && compare(T(1, jPivo), 0) >= 0)
 			jPivo = jPivo + 1;
 		endwhile
 		
@@ -159,12 +162,15 @@ function [ind T basicas] = fulltableau(T, m, n, basicas, print)
 		indicePivo = -1; #Índice da variável básica correspondente ao pivô
 		
 		for i = 2:m
-			if (T(i, jPivo) <= 0)
+			if (compare(T(i, jPivo), 0) <= 0)
 				continue;
 			endif
 			
 			cand = T(i, 1) / T(i, jPivo);
-			if (iPivo == -1 || cand < tetaPivo || (cand == tetaPivo && basicas(i - 1) < indicePivo))
+			if (iPivo == -1 || 
+				compare(cand, tetaPivo) < 0 ||
+				(compare(cand, tetaPivo) == 0 && basicas(i - 1) < indicePivo))
+				
 				tetaPivo = cand;
 				indicePivo = basicas(i - 1);
 				iPivo = i;
@@ -231,7 +237,7 @@ function imprime(tableau, m, n, iter, pivo, basicas)
 		printf("\nx%-1d", basicas(i - 1));
 		for j = 1:n
 			printf("%8.3f", tableau(i, j));
-			if (i == pivo(1) & j == pivo(2))
+			if (i == pivo(1) && j == pivo(2))
 				printf("*|");
 			else
 				printf(" |");
@@ -241,8 +247,16 @@ function imprime(tableau, m, n, iter, pivo, basicas)
 	printf("\n\n");
 endfunction
 
+#Responsável por comparar números considerando erros de arredondamento.
+# Parâmetros:
+# - x: Primeiro número a ser comparado
+# - y: Segundo número a ser comparado
+# Retorno:
+# 0 se |x - y| <= eps
+# 1 se x > y
+# -1 caso contrário
 function [comp] = compare(x, y)
-	if abs(x - y) < eps
+	if abs(x - y) <= eps
 		comp = 0;
 	elseif (x > y)
 		comp = 1;
@@ -251,44 +265,3 @@ function [comp] = compare(x, y)
 	endif
 endfunction
 
-c = [-10 -12 -12 0 0 0]';
-A = [1 2 2 1 0 0;
-	 2 1 2 0 1 0;
-	 2 2 1 0 0 1];
-b = [20 20 20]';
-
-c = [1 1 1 0]';
-A = [1 2 3 0;
-	 -1 2 6 0;
-	 0 4 9 0;
-	 0 0 3 1];
-b = [3 2 5 1]';
-
-A = [1 2 3 0;
-	 -1 1 6 0;
-	 1 4 3 0;
-	 4 3 3 1];
-b = [6 6 8 11]';
-c = [1 1 1 5]';
-
-A = [1 2 3 0;
-	 -1 1 6 0;
-	 1 4 3 0;
-	 4 3 3 1];
-b = [6 6 8 11]';
-c = [1 1 1 5]';
-
-A = [1 2 2 1 0 0;
-	 2 1 2 0 1 0;
-	 2 2 1 0 0 1];
-b = [20 20 20]';
-c = [-10 -12 -12 0 0 0]';
-
-A = [1 1 1;
-	 2 2 2;
-	 3 3 3;
-	 4 4 4];
-b = [3 6 9 12]';
-c = [1 1 1]';
-
-[ind x] = simplex(A,b,c,4,3,true)

@@ -44,9 +44,9 @@ Nesta seção serão apresentadas as funções implementadas no EP, contendo uma
 	\item[Descrição] Responsável por dados os dados de entrada do problema executar o método simplex de duas fases a um problema dado. Implementação do algoritmo descrito na página 116 de \cite{Bertsimas:1997:ILO:548834}.
 	\item[Parâmetros] 
 		\begin{description}
-		 \item[A] Matriz de coeficientes das restrições
-		 \item[b] Vetor de termos independentes das restrições
-		 \item[c] Vetor de custos
+		 \item[A] Matriz de coeficientes das restrições ($m \times n$)
+		 \item[b] Vetor de termos independentes das restrições ($m \times 1$)
+		 \item[c] Vetor de custos ($n \times 1$)
 		 \item[m] Número de linhas de A
 		 \item[n] Número de colunas de A
 		 \item[print] true para imprimir as iterações ou false caso contrário.
@@ -58,7 +58,7 @@ Nesta seção serão apresentadas as funções implementadas no EP, contendo uma
 		 \item[Solução ilimitada] ind = 1
 		 \item[Problema Inviável] ind = -1
 		\end{description}
-	\item[Comentários] Como esta função engloba tanto a preparação do problema para a execução da fase 1 e 2 do método Simplex, ela monta o tableau (Variável \texttt{T}) já adicionando as variáveis artificiais do problema e fazendo-as as variáveis básicas iniciais do problema. Como a matriz básica $B$ dessas variáveis é uma matriz identidade $m$x$m$, não houve em nenhum momento a necessidade de calcular a inversa de matrizes. O tableau foi assim produzido: O custo inicial é simplesmente a soma do vetor b, o vetor de custos reduzidos é dado como a soma das $n$ colunas de $A$ com sinais trocados para as n primeiras colunas e 0 para as n colunas seguintes, o valor de $x_B$ é o próprio vetor $b$ e a matriz das $2n$ direções básicas é a concatenação da matriz $A$ com a identidade $n$x$n$.
+	\item[Comentários] Como esta função engloba tanto a preparação do problema para a execução da fase 1 e 2 do método Simplex, ela monta o tableau (Variável \texttt{T}) já adicionando as variáveis artificiais do problema e fazendo-as as variáveis básicas iniciais do problema. Como a matriz básica $B$ dessas variáveis é uma matriz identidade $m \times m$, não houve em nenhum momento a necessidade de calcular a inversa de matrizes. O tableau foi assim produzido: O custo inicial é simplesmente a soma do vetor b, o vetor de custos reduzidos é dado como a soma das $n$ colunas de $A$ com sinais trocados para as n primeiras colunas e 0 para as $m$ colunas seguintes, o valor de $x_B$ é o próprio vetor $b$ e a matriz das $2n$ direções básicas é a concatenação da matriz $A$ com a identidade $m \times m$.
 \end{description}
 
 \subsection*{\texttt{[ind T basicas] = fulltableau(T, m, n, basicas, print)}}
@@ -66,7 +66,7 @@ Nesta seção serão apresentadas as funções implementadas no EP, contendo uma
 	\item[Descrição] Responsável por realizar as iterações do simplex usando tableau. Implementação do algoritmo descrito na página 100 de \cite{Bertsimas:1997:ILO:548834}.
 	\item[Parâmetros] 
 		\begin{description}
-		 \item[T] Tableau precalculado (Contendo as 0-ésimas linha e coluna).
+		 \item[T] Tableau inicial (Contendo as 0-ésimas linha e coluna).
 		 \item[m] Número de linhas do tableau
 		 \item[n] Número de colunas do tableau
 		 \item[print] true para imprimir as iterações ou false caso contrário.
@@ -75,7 +75,7 @@ Nesta seção serão apresentadas as funções implementadas no EP, contendo uma
 		\begin{description}
 		 \item[ind] o resultado da execução do algoritmo, tal como descrito para a função \texttt{simplex()}.
 		 \item[T] O tableau atualizado após a execução do algoritmo.
-		 \item[basicas] Vetor de variáveis básicas. Ex: Se $x_1, x_4 e x_2$ estão na base nesta ordem, então \texttt{basicas == [1 4 2]}.
+		 \item[basicas] Vetor de variáveis básicas. Ex: Se $x_1, x_4$ e $x_2$ estão na base nesta ordem, então \texttt{basicas == [1 4 2]}.
 		\end{description}
 	\item[Comentários] Esta função foi implementada para permitir ser utilizada tanto nas fases 1 quanto 2. Assim, para evitar o recálculos desnecessário entre produzir uma solução para a fase 1 e iniciar fase 2, a função sempre recebe o tableau a ser processado como parâmetro e o retorna ao fim da execução. Isso aumenta a eficiência do programa enquanto evita maiores problemas de erros de arredondamento. A função utiliza a regra de Bland para a escolha do pivô a cada iteração, isso garante que o algoritmo parará em um número finito de iterações.
 \end{description}
@@ -92,17 +92,12 @@ Nesta seção serão apresentadas as funções implementadas no EP, contendo uma
 		 \item[pivo] Vetor indicando quais as coordenadas no tableau do pivô escolhido
 		 \item[basicas] Vetor de variáveis básicas. Ex: Se $x_1, x_4 e x_2$ estão na base nesta ordem, então \texttt{basicas == [1 4 2]}.
 		\end{description}
-	\item[Retorno]
-		\begin{description}
-		 \item[Solução ótima encontrada] ind = 0 e a solução ótima x
-		 \item[Solução ilimitada] ind = 1
-		 \item[Problema Inviável] ind = -1
-		\end{description}
+	\item[Retorno] Nenhum.
 \end{description}
 
 \subsection*{\texttt{[comp] = compare(x, y)}}
 \begin{description}
-	\item[Descrição] Responsável por comparar números considerando erros de arredondamento. Adota \texttt{1.4901e-08} (A raiz quadrada do $\epsilon$ de uma máquina de que opera com números de precisão dupla) como erro tolerável.
+	\item[Descrição] Responsável por comparar números considerando erros de arredondamento. Adota \texttt{1.4901e-08} (A raiz quadrada do $\epsilon$ de uma máquina que opera com números de precisão dupla) como erro tolerável.
 	\item[Parâmetros] 
 		\begin{description}
 		 \item[x] Primeiro número a ser comparado
@@ -110,17 +105,17 @@ Nesta seção serão apresentadas as funções implementadas no EP, contendo uma
 		\end{description}
 	\item[Retorno]
 		\begin{description}
-		 \item[|x - y| $\leq$ eps] \texttt{comp}$ = 0$
-		 \item[x < y] \texttt{comp}$ = 1$
-		 \item[x > y] \texttt{comp}$ = -1$
+		 \item[|x - y| $\leq$ 1.4901e-08] \texttt{comp}$ = 0$
+		 \item[x $>$ y] \texttt{comp}$ = 1$
+		 \item[x $<$ y] \texttt{comp}$ = -1$
 		\end{description}
 	\item[Comentários] Esta função foi implementada para ser utilizada no programa de forma a evitar comparações problemáticas devido a erros de arredondamento acumulados vindos do uso de notação em ponto flutuante e repetidas operações de multiplicação e divisão.
 \end{description}
 
 \section*{Testes Realizados}
-Nesta seção descreveremos os testes realizados no programa para atestar seu funcionamento adequado nas diferentes possibilidades de respostas que o método Simplex pode retornar. Como comparação, o mesmo problema foi testado no programa Maxima \cite{maxima} e seus resultados foram comparados. Os problemas estão descritos no formato das matrizes A, b, c e dimensões m e n já adequados para inserção diretamente via linha de comando do EP.
+Nesta seção descreveremos os testes realizados no programa para atestar seu funcionamento adequado nas diferentes possibilidades de respostas que o método Simplex pode retornar. Como comparação, o mesmo problema foi testado no programa Maxima \cite{maxima} e seus resultados foram comparados. Os problemas estão descritos no formato das matrizes $A$, $b$, $c$ e dimensões $m$ e $n$ já adequados para inserção diretamente via linha de comando do EP.
 
-\subsection*{Problemas com solução finita}
+\subsection*{Problemas com solução ótima finita}
 \subsubsection*{Problema 1}
 Solução obtida para comparação: Solução ótima = -136
 
@@ -186,8 +181,253 @@ x =
    0
 \end{verbatim} }
 
+\subsubsection*{Problema 2}
+Solução obtida para comparação: Solução ótima = 7.500000
+
+{\scriptsize \begin{verbatim}
+A = [ 1  2  3  1  2  1;
+      0  3  8  0 -2 -5;
+     -1  0 -1  3  0 -2 ];
+b = [13 7 9]';
+c = [1 1 1 1 1 1]';
+m = 3;
+n = 6;
+
+Simplex: Fase 1
+Iteração 1
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      | x8      | x9      |
+   -29.000 |  -0.000 |  -5.000 | -10.000 |  -4.000 |  -0.000 |   6.000 |   0.000 |   0.000 |   0.000 |
+------------------------------------------------------------------------------------------------------
+x7  13.000 |   1.000 |   2.000 |   3.000 |   1.000 |   2.000 |   1.000 |   1.000 |   0.000 |   0.000 |
+x8   7.000 |   0.000 |   3.000*|   8.000 |   0.000 |  -2.000 |  -5.000 |   0.000 |   1.000 |   0.000 |
+x9   9.000 |  -1.000 |   0.000 |  -1.000 |   3.000 |   0.000 |  -2.000 |   0.000 |   0.000 |   1.000 |
+
+Iteração 2
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      | x8      | x9      |
+   -17.333 |   0.000 |   0.000 |   3.333 |  -4.000 |  -3.333 |  -2.333 |   0.000 |   1.667 |   0.000 |
+------------------------------------------------------------------------------------------------------
+x7   8.333 |   1.000 |   0.000 |  -2.333 |   1.000 |   3.333 |   4.333 |   1.000 |  -0.667 |   0.000 |
+x2   2.333 |   0.000 |   1.000 |   2.667 |   0.000 |  -0.667 |  -1.667 |   0.000 |   0.333 |   0.000 |
+x9   9.000 |  -1.000 |   0.000 |  -1.000 |   3.000*|   0.000 |  -2.000 |   0.000 |   0.000 |   1.000 |
+
+Iteração 3
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      | x8      | x9      |
+    -5.333 |  -1.333 |   0.000 |   2.000 |   0.000 |  -3.333 |  -5.000 |   0.000 |   1.667 |   1.333 |
+------------------------------------------------------------------------------------------------------
+x7   5.333 |   1.333*|   0.000 |  -2.000 |   0.000 |   3.333 |   5.000 |   1.000 |  -0.667 |  -0.333 |
+x2   2.333 |   0.000 |   1.000 |   2.667 |   0.000 |  -0.667 |  -1.667 |   0.000 |   0.333 |   0.000 |
+x4   3.000 |  -0.333 |   0.000 |  -0.333 |   1.000 |   0.000 |  -0.667 |   0.000 |   0.000 |   0.333 |
+
+Iteração 4
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      | x8      | x9      |
+     0.000 |   0.000 |   0.000 |  -0.000 |   0.000 |   0.000 |   0.000 |   1.000 |   1.000 |   1.000 |
+------------------------------------------------------------------------------------------------------
+x1   4.000 |   1.000 |   0.000 |  -1.500 |   0.000 |   2.500 |   3.750 |   0.750 |  -0.500 |  -0.250 |
+x2   2.333 |   0.000 |   1.000 |   2.667 |   0.000 |  -0.667 |  -1.667 |   0.000 |   0.333 |   0.000 |
+x4   4.333 |   0.000 |   0.000 |  -0.833 |   1.000 |   0.833 |   0.583 |   0.250 |  -0.167 |   0.250 |
+
+Simplex: Fase 2
+Iteração 1
+           | x1      | x2      | x3      | x4      | x5      | x6      |
+   -10.667 |   0.000 |   0.000 |   0.667 |   0.000 |  -1.667 |  -1.667 |
+------------------------------------------------------------------------
+x1   4.000 |   1.000 |   0.000 |  -1.500 |   0.000 |   2.500*|   3.750 |
+x2   2.333 |   0.000 |   1.000 |   2.667 |   0.000 |  -0.667 |  -1.667 |
+x4   4.333 |   0.000 |   0.000 |  -0.833 |   1.000 |   0.833 |   0.583 |
+
+Iteração 2
+           | x1      | x2      | x3      | x4      | x5      | x6      |
+    -8.000 |   0.667 |   0.000 |  -0.333 |   0.000 |   0.000 |   0.833 |
+------------------------------------------------------------------------
+x5   1.600 |   0.400 |   0.000 |  -0.600 |   0.000 |   1.000 |   1.500 |
+x2   3.400 |   0.267 |   1.000 |   2.267*|   0.000 |   0.000 |  -0.667 |
+x4   3.000 |  -0.333 |   0.000 |  -0.333 |   1.000 |   0.000 |  -0.667 |
+
+Iteração 3
+           | x1      | x2      | x3      | x4      | x5      | x6      |
+    -7.500 |   0.706 |   0.147 |   0.000 |   0.000 |   0.000 |   0.735 |
+------------------------------------------------------------------------
+x5   2.500 |   0.471 |   0.265 |   0.000 |   0.000 |   1.000 |   1.324 |
+x3   1.500 |   0.118 |   0.441 |   1.000 |   0.000 |   0.000 |  -0.294 |
+x4   3.500 |  -0.294 |   0.147 |   0.000 |   1.000 |   0.000 |  -0.765 |
+
+Solução ótima encontrada com custo 7.500:
+x =
+
+   0.00000
+   0.00000
+   1.50000
+   3.50000
+   2.50000
+   0.00000
+\end{verbatim} }
+
+\subsubsection*{Problema 3}
+Solução obtida para comparação: Solução ótima = -6.5
+
+{\scriptsize \begin{verbatim}
+A = [ 3  1 -2  2;
+     -2  0  1  2;
+      1  2  3  0 ];
+b = [7 1 3]';
+c = [-2 -3 -1 -1]';
+m = 3;
+n = 4;
+
+Simplex: Fase 1
+Iteração 1
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      |
+   -11.000 |  -2.000 |  -3.000 |  -2.000 |  -4.000 |   0.000 |   0.000 |   0.000 |
+----------------------------------------------------------------------------------
+x5   7.000 |   3.000*|   1.000 |  -2.000 |   2.000 |   1.000 |   0.000 |   0.000 |
+x6   1.000 |  -2.000 |   0.000 |   1.000 |   2.000 |   0.000 |   1.000 |   0.000 |
+x7   3.000 |   1.000 |   2.000 |   3.000 |   0.000 |   0.000 |   0.000 |   1.000 |
+
+Iteração 2
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      |
+    -6.333 |   0.000 |  -2.333 |  -3.333 |  -2.667 |   0.667 |   0.000 |   0.000 |
+----------------------------------------------------------------------------------
+x1   2.333 |   1.000 |   0.333 |  -0.667 |   0.667 |   0.333 |   0.000 |   0.000 |
+x6   5.667 |   0.000 |   0.667 |  -0.333 |   3.333 |   0.667 |   1.000 |   0.000 |
+x7   0.667 |   0.000 |   1.667*|   3.667 |  -0.667 |  -0.333 |   0.000 |   1.000 |
+
+Iteração 3
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      |
+    -5.400 |   0.000 |   0.000 |   1.800 |  -3.600 |   0.200 |   0.000 |   1.400 |
+----------------------------------------------------------------------------------
+x1   2.200 |   1.000 |   0.000 |  -1.400 |   0.800 |   0.400 |   0.000 |  -0.200 |
+x6   5.400 |   0.000 |   0.000 |  -1.800 |   3.600*|   0.800 |   1.000 |  -0.400 |
+x2   0.400 |   0.000 |   1.000 |   2.200 |  -0.400 |  -0.200 |   0.000 |   0.600 |
+
+Iteração 4
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      |
+     0.000 |   0.000 |   0.000 |  -0.000 |   0.000 |   1.000 |   1.000 |   1.000 |
+----------------------------------------------------------------------------------
+x1   1.000 |   1.000 |   0.000 |  -1.000 |   0.000 |   0.222 |  -0.222 |  -0.111 |
+x4   1.500 |   0.000 |   0.000 |  -0.500 |   1.000 |   0.222 |   0.278 |  -0.111 |
+x2   1.000 |   0.000 |   1.000 |   2.000 |   0.000 |  -0.111 |   0.111 |   0.556 |
+
+Simplex: Fase 2
+Iteração 1
+           | x1      | x2      | x3      | x4      |
+     6.500 |   0.000 |   0.000 |   2.500 |   0.000 |
+----------------------------------------------------
+x1   1.000 |   1.000 |   0.000 |  -1.000 |   0.000 |
+x4   1.500 |   0.000 |   0.000 |  -0.500 |   1.000 |
+x2   1.000 |   0.000 |   1.000 |   2.000 |   0.000 |
+
+Solução ótima encontrada com custo -6.500:
+x =
+
+   1.00000
+   1.00000
+   0.00000
+   1.50000
+\end{verbatim} }
 
 \subsection*{Problemas com solução $-\infty$}
+\subsubsection*{Problema 1}
+Solução obtida para comparação: Solução ótima = -infinity
+
+{\scriptsize \begin{verbatim}
+A = [ 1  2 -1  0;
+      0  3  3 -1;
+     -1  0 -5  2 ];
+b = [2 3 9]';
+c = [-2 -3 -1 -1]';
+m = 3;
+n = 4;
+
+
+Simplex: Fase 1
+Iteração 1
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      |
+   -14.000 |  -0.000 |  -5.000 |   3.000 |  -1.000 |   0.000 |   0.000 |   0.000 |
+----------------------------------------------------------------------------------
+x5   2.000 |   1.000 |   2.000*|  -1.000 |   0.000 |   1.000 |   0.000 |   0.000 |
+x6   3.000 |   0.000 |   3.000 |   3.000 |  -1.000 |   0.000 |   1.000 |   0.000 |
+x7   9.000 |  -1.000 |   0.000 |  -5.000 |   2.000 |   0.000 |   0.000 |   1.000 |
+
+Iteração 2
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      |
+    -9.000 |   2.500 |   0.000 |   0.500 |  -1.000 |   2.500 |   0.000 |   0.000 |
+----------------------------------------------------------------------------------
+x2   1.000 |   0.500 |   1.000 |  -0.500 |   0.000 |   0.500 |   0.000 |   0.000 |
+x6   0.000 |  -1.500 |   0.000 |   4.500 |  -1.000 |  -1.500 |   1.000 |   0.000 |
+x7   9.000 |  -1.000 |   0.000 |  -5.000 |   2.000*|   0.000 |   0.000 |   1.000 |
+
+Iteração 3
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      |
+    -4.500 |   2.000 |   0.000 |  -2.000 |   0.000 |   2.500 |   0.000 |   0.500 |
+----------------------------------------------------------------------------------
+x2   1.000 |   0.500 |   1.000 |  -0.500 |   0.000 |   0.500 |   0.000 |   0.000 |
+x6   4.500 |  -2.000 |   0.000 |   2.000*|   0.000 |  -1.500 |   1.000 |   0.500 |
+x4   4.500 |  -0.500 |   0.000 |  -2.500 |   1.000 |   0.000 |   0.000 |   0.500 |
+
+Iteração 4
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      |
+     0.000 |   0.000 |   0.000 |   0.000 |   0.000 |   1.000 |   1.000 |   1.000 |
+----------------------------------------------------------------------------------
+x2   2.125 |   0.000 |   1.000 |   0.000 |   0.000 |   0.125 |   0.250 |   0.125 |
+x3   2.250 |  -1.000 |   0.000 |   1.000 |   0.000 |  -0.750 |   0.500 |   0.250 |
+x4  10.125 |  -3.000 |   0.000 |   0.000 |   1.000 |  -1.875 |   1.250 |   1.125 |
+
+Simplex: Fase 2
+Iteração 1
+           | x1      | x2      | x3      | x4      |
+    18.750 |  -6.000 |   0.000 |   0.000 |   0.000 |
+----------------------------------------------------
+x2   2.125 |   0.000 |   1.000 |   0.000 |   0.000 |
+x3   2.250 |  -1.000 |   0.000 |   1.000 |   0.000 |
+x4  10.125 |  -3.000 |   0.000 |   0.000 |   1.000 |
+
+Custo ótimo é menos infinito
+\end{verbatim} }
+
+\subsubsection*{Problema 2}
+Solução obtida para comparação: Solução ótima = -infinity
+
+{\scriptsize \begin{verbatim}
+A = [1 -1 -1 0;
+	 1  1 0 -1];
+b = [1 2]';
+c = [-1 -1 0 0]';
+m = 2;
+n = 4;
+
+
+Simplex: Fase 1
+Iteração 1
+           | x1      | x2      | x3      | x4      | x5      | x6      |
+    -3.000 |  -2.000 |  -0.000 |   1.000 |   1.000 |   0.000 |   0.000 |
+------------------------------------------------------------------------
+x5   1.000 |   1.000*|  -1.000 |  -1.000 |   0.000 |   1.000 |   0.000 |
+x6   2.000 |   1.000 |   1.000 |   0.000 |  -1.000 |   0.000 |   1.000 |
+
+Iteração 2
+           | x1      | x2      | x3      | x4      | x5      | x6      |
+    -1.000 |   0.000 |  -2.000 |  -1.000 |   1.000 |   2.000 |   0.000 |
+------------------------------------------------------------------------
+x1   1.000 |   1.000 |  -1.000 |  -1.000 |   0.000 |   1.000 |   0.000 |
+x6   1.000 |   0.000 |   2.000*|   1.000 |  -1.000 |  -1.000 |   1.000 |
+
+Iteração 3
+           | x1      | x2      | x3      | x4      | x5      | x6      |
+     0.000 |   0.000 |   0.000 |   0.000 |   0.000 |   1.000 |   1.000 |
+------------------------------------------------------------------------
+x1   1.500 |   1.000 |   0.000 |  -0.500 |  -0.500 |   0.500 |   0.500 |
+x2   0.500 |   0.000 |   1.000 |   0.500 |  -0.500 |  -0.500 |   0.500 |
+
+Simplex: Fase 2
+Iteração 1
+           | x1      | x2      | x3      | x4      |
+     2.000 |   0.000 |   0.000 |   0.000 |  -1.000 |
+----------------------------------------------------
+x1   1.500 |   1.000 |   0.000 |  -0.500 |  -0.500 |
+x2   0.500 |   0.000 |   1.000 |   0.500 |  -0.500 |
+
+Custo ótimo é menos infinito
+\end{verbatim} }
 
 \subsection*{Problemas com restrições linearmente dependentes}
 \subsubsection*{Problema 1}
@@ -240,14 +480,14 @@ x =
 
 
 \subsubsection*{Problema 2}
-Solução obtida para comparação: Solução ótima = -1.750
+Solução obtida para comparação: Solução ótima = 1.750
 
 {\scriptsize \begin{verbatim}
-c = [1 1 1 0]';
 A = [1 2 3 0;
 	 -1 2 6 0;
 	 0 4 9 0;
 	 0 0 3 1];
+c = [1 1 1 0]';
 b = [3 2 5 1]';
 m = 4;
 n = 4;
@@ -317,6 +557,80 @@ x =
 
 
 \subsection*{Problemas inviáveis}
+\subsubsection*{Problema 1}
+Solução obtida para comparação: Problema inviável.
+
+{\scriptsize \begin{verbatim}
+A = [ 3  1 -2  2  4;
+      1  2  3  0  3;
+      5  0 -7  2  2;
+      6  2 -4  4  8 ];
+b = [1 2 3 4]';
+c = [3  4  1 -1 -2]';
+m = 4;
+n = 5;
+
+Simplex: Fase 1
+Iteração 1
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      | x8      | x9      |
+   -10.000 | -15.000 |  -5.000 |  10.000 |  -8.000 | -17.000 |   0.000 |   0.000 |   0.000 |   0.000 |
+------------------------------------------------------------------------------------------------------
+x6   1.000 |   3.000*|   1.000 |  -2.000 |   2.000 |   4.000 |   1.000 |   0.000 |   0.000 |   0.000 |
+x7   2.000 |   1.000 |   2.000 |   3.000 |   0.000 |   3.000 |   0.000 |   1.000 |   0.000 |   0.000 |
+x8   3.000 |   5.000 |   0.000 |  -7.000 |   2.000 |   2.000 |   0.000 |   0.000 |   1.000 |   0.000 |
+x9   4.000 |   6.000 |   2.000 |  -4.000 |   4.000 |   8.000 |   0.000 |   0.000 |   0.000 |   1.000 |
+
+Iteração 2
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      | x8      | x9      |
+    -5.000 |   0.000 |   0.000 |   0.000 |   2.000 |   3.000 |   5.000 |   0.000 |   0.000 |   0.000 |
+------------------------------------------------------------------------------------------------------
+x1   0.333 |   1.000 |   0.333 |  -0.667 |   0.667 |   1.333 |   0.333 |   0.000 |   0.000 |   0.000 |
+x7   1.667 |   0.000 |   1.667 |   3.667 |  -0.667 |   1.667 |  -0.333 |   1.000 |   0.000 |   0.000 |
+x8   1.333 |   0.000 |  -1.667 |  -3.667 |  -1.333 |  -4.667 |  -1.667 |   0.000 |   1.000 |   0.000 |
+x9   2.000 |   0.000 |   0.000 |   0.000 |   0.000 |   0.000 |  -2.000 |   0.000 |   0.000 |   1.000 |
+
+Problema inviável.
+\end{verbatim} }
+
+\subsubsection*{Problema 2}
+Solução obtida para comparação: Problema inviável.
+
+{\scriptsize \begin{verbatim}
+A = [1 0 -1 0 0;
+	 0 1 0 -1 0;
+	 1 1 0  0 1];
+b = [6 6 11]';
+c = [1 1 0 0 0]';
+m = 3;
+n = 5;
+
+Simplex: Fase 1
+Iteração 1
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      | x8      |
+   -23.000 |  -2.000 |  -2.000 |   1.000 |   1.000 |  -1.000 |   0.000 |   0.000 |   0.000 |
+--------------------------------------------------------------------------------------------
+x6   6.000 |   1.000*|   0.000 |  -1.000 |   0.000 |   0.000 |   1.000 |   0.000 |   0.000 |
+x7   6.000 |   0.000 |   1.000 |   0.000 |  -1.000 |   0.000 |   0.000 |   1.000 |   0.000 |
+x8  11.000 |   1.000 |   1.000 |   0.000 |   0.000 |   1.000 |   0.000 |   0.000 |   1.000 |
+
+Iteração 2
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      | x8      |
+   -11.000 |   0.000 |  -2.000 |  -1.000 |   1.000 |  -1.000 |   2.000 |   0.000 |   0.000 |
+--------------------------------------------------------------------------------------------
+x1   6.000 |   1.000 |   0.000 |  -1.000 |   0.000 |   0.000 |   1.000 |   0.000 |   0.000 |
+x7   6.000 |   0.000 |   1.000 |   0.000 |  -1.000 |   0.000 |   0.000 |   1.000 |   0.000 |
+x8   5.000 |   0.000 |   1.000*|   1.000 |   0.000 |   1.000 |  -1.000 |   0.000 |   1.000 |
+
+Iteração 3
+           | x1      | x2      | x3      | x4      | x5      | x6      | x7      | x8      |
+    -1.000 |   0.000 |   0.000 |   1.000 |   1.000 |   1.000 |   0.000 |   0.000 |   2.000 |
+--------------------------------------------------------------------------------------------
+x1   6.000 |   1.000 |   0.000 |  -1.000 |   0.000 |   0.000 |   1.000 |   0.000 |   0.000 |
+x7   1.000 |   0.000 |   0.000 |  -1.000 |  -1.000 |  -1.000 |   1.000 |   1.000 |  -1.000 |
+x2   5.000 |   0.000 |   1.000 |   1.000 |   0.000 |   1.000 |  -1.000 |   0.000 |   1.000 |
+
+Problema inviável.
+\end{verbatim} }
 
 \section*{Método Simplex}
 Das várias maneiras de implementar o Simplex, tomamos como referência a implementação através do \emph{full tableau} em duas fases descrito em \cite{Bertsimas:1997:ILO:548834}, onde a cada iteração guardamos uma matriz $(m + 1)$ x $(n + 1)$:
@@ -374,7 +688,7 @@ A função full tableau, entretanto, não resolve sozinha o problema de otimiza�
 \end{enumerate}
 
 \section*{Conclusão}
-	O trabalho ajudou a fixar os conceitos vistos em aula, além de nos fazer entrar em contato com uma linguagem de programação científica. Foi possível ver melhor algoritmicamente e de maneira prática o funcionamento do método Simplex. Porém, percebemos ao longo da implementação a dificuldade de garantir que o método foi implementado segundo o que o livro sugeriu. Houve a necessidade de produzir uma quantidade suficiente de testes para testar a robustez do código. Ainda, tivemos que lidar com problemas de comparações entre ponto flutuantes, algo que já era esperado dada a forma de representar números em ponto flutuante em computadores.
+	O trabalho ajudou a fixar os conceitos vistos em aula, além de nos fazer entrar em contato com uma linguagem de programação científica. Foi possível ver melhor algoritmicamente e de maneira prática o funcionamento do método Simplex. Porém, percebemos ao longo da implementação a dificuldade de garantir que o método foi implementado segundo o que o livro sugeriu. Houve a necessidade de produzir uma quantidade suficiente de testes para testar a robustez do código. Ainda, tivemos que lidar com problemas de comparações entre ponto flutuantes, algo que já era esperado dada a forma de representar tais números em computadores.
 
 
 \nocite{*}

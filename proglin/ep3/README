@@ -1,0 +1,20 @@
+# MAC0315 - 2012 - PROGRAMAÇÃO LINEAR
+# EP3: Implementação do Método Simplex
+
+## Autores
+	Gustavo Perez Katague - 6797143
+	Pedro Paulo Vezzá Campos - 7538743
+
+## Execução
+	A formatação de entrada e saída seguem o padrão descrito na especificação
+	fornecida do EP.
+
+## Testes
+	O funcionamento correto do programa foi verificado através de diversos
+	problemas de teste inclusos no diretório **testes**. As respostas esperadas
+	encontram-se no diretório **esperados**.
+
+## Relatório
+	Um relatório comentando a implementação do EP encontra-se no arquivo
+	EP3GustavoPedro.pdf
+

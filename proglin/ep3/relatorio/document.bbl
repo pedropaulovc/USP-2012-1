@@ -1,0 +1,20 @@
+\providecommand{\abntreprintinfo}[1]{%
+ \citeonline{#1}}
+\begin{thebibliography}{}
+\providecommand{\abntrefinfo}[3]{}
+\providecommand{\abntbstabout}[1]{}
+\abntbstabout{1.42.2.1 }
+
+\bibitem{Bertsimas:1997:ILO:548834}
+\abntrefinfo{Bertsimas e Tsitsiklis}{BERTSIMAS; TSITSIKLIS}{1997}
+{BERTSIMAS, D.; TSITSIKLIS, J. \emph{Introduction to Linear Optimization}. 1st.
+  ed. [S.l.]: Athena Scientific, 1997.
+ISBN 1886529191.}
+
+\bibitem{maxima}
+\abntrefinfo{Projeto Maxima}{PROJETO MAXIMA}{2012}
+{PROJETO MAXIMA. \emph{Maxima, a Computer Algebra System}. 2012.
+[Online; acessado em 15 de junho de 2012].
+Dispon{\'\i}vel em: $<$\url{http://maxima.sourceforge.net/}$>$.}
+
+\end{thebibliography}

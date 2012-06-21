@@ -1,0 +1,52 @@
+This is BibTeX, Version 0.99c (TeX Live 2009/Debian)
+The top-level auxiliary file: conceitos.aux
+The style file: abnt-num.bst
+Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+Database file #1: bibliografia.bib
+Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
++---------------------------------------------------------+
+| Estilo bibliográfico abnt-num.bst versão 1.42.2.1           |
+| Em caso de dúvidas ou problemas com este estilo procure |
+| http://abntex.codigolivre.org.br                        |
++---------------------------------------------------------+
+You've used 1 entry,
+            6480 wiz_defined-function locations,
+            1160 strings with 9265 characters,
+and the built_in function-call counts, 1417 in all, are:
+= -- 243
+> -- 26
+< -- 0
++ -- 57
+- -- 8
+* -- 77
+:= -- 251
+add.period$ -- 3
+call.type$ -- 1
+change.case$ -- 10
+chr.to.int$ -- 1
+cite$ -- 1
+duplicate$ -- 39
+empty$ -- 60
+format.name$ -- 41
+if$ -- 317
+int.to.chr$ -- 0
+int.to.str$ -- 0
+missing$ -- 20
+newline$ -- 12
+num.names$ -- 4
+pop$ -- 56
+preamble$ -- 1
+purify$ -- 4
+quote$ -- 0
+skip$ -- 80
+stack$ -- 1
+substring$ -- 62
+swap$ -- 16
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 0
+while$ -- 7
+width$ -- 0
+write$ -- 19

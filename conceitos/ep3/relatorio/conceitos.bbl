@@ -1,0 +1,13 @@
+\providecommand{\abntreprintinfo}[1]{%
+ \citeonline{#1}}
+\begin{thebibliography}{}
+\providecommand{\abntrefinfo}[3]{}
+\providecommand{\abntbstabout}[1]{}
+\abntbstabout{1.42.2.1 }
+
+\bibitem{ana:livro}
+\abntrefinfo{Melo e Silva}{MELO; SILVA}{2003}
+{MELO, A. C.~V. de; SILVA, F. S.~C. da. \emph{Princ\'ipios de Linguagens de
+  Programa{\c c}\~ao}. S\~ao Paulo, SP: Edgard Blucher, 2003.}
+
+\end{thebibliography}

@@ -1,0 +1,138 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[brazil,times]{abnt}
+
+\usepackage[T1]{fontenc}
+\usepackage[portuguese]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage[pdfborder={0 0 0}]{hyperref}
+\usepackage{amssymb}
+\usepackage{listingsutf8}
+
+\makeatletter
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\autor{Stefano Tommasini - 7278080 \\
+		Pedro Paulo Vezzá Campos - 7538743}
+
+\titulo{Descobrindo se um grafo é denso}
+
+\comentario{Terceiro exercício-programa apresentado para avaliação na disciplina MAC0328, do curso de Bacharelado em Ciência da Computação, turma 45, da Universidade de São Paulo, ministrada pelo professor Arnaldo Mandel.}
+
+\instituicao{Departamento de Ciência da Computação\par
+			Instituto de Matemática e Estatística\par
+			Universidade de São Paulo}
+
+\local{São Paulo, SP - Brasil}
+
+\data{\today}
+
+\capa
+\folhaderosto
+
+% \tableofcontents
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Introdução}
+Os alunos de MAC0328 - Algoritmos em Grafos são acostumados desde cedo a manipular grafos segundo duas estruturas de dados básicas: Listas e matrizes de adjacências. Comumente, a primeira representação é dita adequada para digrafos esparsos enquanto a segunda é preferida para digrafos densos. Neste trabalho será feita uma investigação das performances de cada uma das representações no uso de dois algoritmos fundamentais na área de algoritmos em grafos: Buscas em largura e buscas em profundidade.
+
+Através dos resultados experimentais obtidos através da execução do exercício-programa implementado segundo a especificação fornecida, serão deduzidas conclusões a respeito da eficácia relativa de cada uma das formas de representação de um digrafo.
+
+
+\section*{Implementação}
+O EP foi implementado inteiramente em linguagem C, aproveitando que parte do código a ser utilizado vindo das notas de aula já estava nesta linguagem. Os alunos procederam, então, com a modularização do código e implementação dos experimentos pedidos. O código fonte está assim dividido:
+
+\begin{description}
+	\item[digrafo.\{c, h\} e vertex.h] Código extraído das notas de aula gentilmente agrupado por Diogo Pina. Possui todos os algoritmos de manipulação de digrafos relevante ao EP, incluindo alocação e buscas em largura e em profundidade.
+	\item[fila.\{c, h\} e item.h] Código relativo à implementação de uma fila simples utilizando vetor para ser aproveitada pelos algoritmos descritos em digrafo.c.
+	\item[experimento.\{c, h\}] Código relativo à seção 1 do EP (O experimento) que determina como será feito um experimento individual composto pela geração de um digrafo aleatório de \texttt{V} vértices segundo uma probabilidade dada \texttt{p}.
+	\item[driver.\{c, h\}] Código relativo à seção 2 do EP (O teste) responsável por implementar o driver do programa. Ele aceita diversos comandos para a tomada de tempos de utilizados por cada uma das representações e por cada forma de busca no digrafo. Ainda, permite localizar a probabilidade \texttt{p} que marca o limiar entre o que é um grafo denso e um grafo esparso.
+	\item[main.c] Contém a função \texttt{main()} do programa, chama a função \texttt{driver()} do módulo correspondente.
+	\item[util.h] Contém funções e declarações utilitárias utilizadas durante a implementação.
+\end{description}
+
+
+
+\begin{verbatim}
+b
+V;alfa;m_dfs;m_bfs;l_dfs;l_bfs
+10;0.50000000;0.00000000;0.00000000;0.00000000;0.00000000
+V;alfa;m_dfs;m_bfs;l_dfs;l_bfs
+20;0.50000000;0.00000000;0.02000000;0.00000000;0.01000000
+20;0.75000000;0.00000000;0.02000000;0.00000000;0.01000000
+20;0.87500000;0.00000000;0.01000000;0.00000000;0.00000000
+20;0.93750000;0.00000000;0.00000000;0.00000000;0.02000000
+20;0.90625000;0.00000000;0.01000000;0.00000000;0.01000000
+V;alfa;m_dfs;m_bfs;l_dfs;l_bfs
+50;0.50000000;0.00000000;0.30000000;0.00000000;0.06000000
+50;0.75000000;0.00000000;0.22000000;0.01000000;0.10000000
+50;0.87500000;0.00000000;0.17000000;0.00000000;0.10000000
+50;0.93750000;0.01000000;0.12000000;0.00000000;0.11000000
+50;0.96875000;0.00000000;0.13000000;0.00000000;0.11000000
+50;0.98437500;0.00000000;0.11000000;0.00000000;0.11000000
+V;alfa;m_dfs;m_bfs;l_dfs;l_bfs
+80;0.50000000;0.00000000;1.18000000;0.00000000;0.24000000
+80;0.75000000;0.00000000;0.96000000;0.00000000;0.35000000
+80;0.87500000;0.00000000;0.70000000;0.01000000;0.37000000
+80;0.93750000;0.00000000;0.48000000;0.00000000;0.43000000
+80;0.96875000;0.00000000;0.57000000;0.00000000;0.34000000
+80;0.98437500;0.02000000;0.42000000;0.00000000;0.42000000
+80;0.99218750;0.02000000;0.46000000;0.00000000;0.37000000
+80;0.99609375;0.02000000;0.42000000;0.00000000;0.43000000
+80;0.99804688;0.01000000;0.45000000;0.00000000;0.39000000
+80;0.99902344;0.00000000;0.45000000;0.00000000;0.38000000
+V;alfa;m_dfs;m_bfs;l_dfs;l_bfs
+100;0.50000000;0.01000000;2.25000000;0.00000000;0.43000000
+100;0.75000000;0.01000000;1.86000000;0.00000000;0.65000000
+100;0.87500000;0.01000000;1.32000000;0.03000000;0.70000000
+100;0.93750000;0.03000000;1.07000000;0.00000000;0.73000000
+100;0.96875000;0.01000000;0.92000000;0.02000000;0.76000000
+100;0.98437500;0.00000000;0.90000000;0.01000000;0.74000000
+100;0.99218750;0.01000000;0.87000000;0.01000000;0.75000000
+100;0.99609375;0.00000000;0.84000000;0.01000000;0.79000000
+100;0.99804688;0.01000000;0.83000000;0.00000000;0.75000000
+100;0.99902344;0.00000000;0.84000000;0.01000000;0.75000000
+V;alfa;m_dfs;m_bfs;l_dfs;l_bfs
+150;0.50000000;0.03000000;7.51000000;0.00000000;1.42000000
+150;0.75000000;0.04000000;6.26000000;0.01000000;1.98000000
+150;0.87500000;0.03000000;4.44000000;0.03000000;2.24000000
+150;0.93750000;0.02000000;3.51000000;0.03000000;2.38000000
+150;0.96875000;0.02000000;3.15000000;0.02000000;2.44000000
+150;0.98437500;0.06000000;2.90000000;0.02000000;2.51000000
+150;0.99218750;0.04000000;2.83000000;0.01000000;2.48000000
+150;0.99609375;0.03000000;2.77000000;0.02000000;2.46000000
+150;0.99804688;0.01000000;2.74000000;0.03000000;2.49000000
+150;0.99902344;0.02000000;2.72000000;0.01000000;2.57000000
+V;alfa;m_dfs;m_bfs;l_dfs;l_bfs
+250;0.50000000;0.13000000;34.64000000;0.03000000;6.33000000
+250;0.75000000;0.07000000;28.63000000;0.11000000;9.35000000
+250;0.87500000;0.13000000;20.11000000;0.04000000;11.56000000
+250;0.93750000;0.04000000;15.88000000;0.06000000;12.25000000
+250;0.96875000;0.05000000;14.02000000;0.05000000;12.69000000
+250;0.98437500;0.04000000;13.10000000;0.06000000;13.12000000
+250;0.97656250;0.06000000;13.56000000;0.04000000;12.28000000
+250;0.98046875;0.05000000;13.28000000;0.06000000;12.04000000
+250;0.98242188;0.06000000;13.20000000;0.04000000;12.22000000
+250;0.98339844;0.03000000;13.14000000;0.08000000;12.64000000
+V;alfa;m_dfs;m_bfs;l_dfs;l_bfs
+500;0.50000000;0.55000000;275.84000000;0.14000000;72.90000000
+500;0.75000000;0.43000000;227.55000000;0.30000000;130.02000000
+500;0.87500000;0.34000000;160.04000000;0.34000000;164.30000000
+500;0.81250000;0.36000000;196.66000000;0.36000000;156.68000000
+500;0.84375000;0.32000000;178.12000000;0.36000000;159.92000000
+500;0.85937500;0.36000000;168.90000000;0.31000000;161.51000000
+500;0.86718750;0.32000000;164.34000000;0.39000000;161.89000000
+500;0.87109375;0.31000000;161.68000000;0.30000000;158.30000000
+500;0.87304688;0.27000000;160.05000000;0.37000000;157.51000000
+500;0.87402344;0.30000000;160.23000000;0.40000000;161.64000000
+\end{verbatim}
+
+%\nocite{*}
+%\bibliographystyle{abnt-num}
+%\bibliography{bibliografia}
+
+\end{document}

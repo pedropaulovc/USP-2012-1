@@ -9,10 +9,11 @@
 
 #include"experimento.h"
 
+
 resultado Experimento(int V, double p) {
 	int i, j;
-	ll M_dfs_ini, M_dfs_fim, M_bfs_ini, M_bfs_fim;
-	ll L_dfs_ini, L_dfs_fim, L_bfs_ini, L_bfs_fim;
+	struct timespec M_dfs_ini, M_dfs_fim, M_bfs_ini, M_bfs_fim;
+	struct timespec L_dfs_ini, L_dfs_fim, L_bfs_ini, L_bfs_fim;
 	resultado ans;
 
 	Digraph G = DIGRAPHinit(V);
@@ -22,33 +23,36 @@ resultado Experimento(int V, double p) {
 			if (i != j && rand() <  p*RAND_MAX)
 				DIGRAPHinsertA (G, i, j);
 
-	M_dfs_ini = clock();
+	clock_gettime(CLOCK_REALTIME, &M_dfs_ini);
 	f (i, 0, 8)
 		DIGRAPHdfsM (G);
-	M_dfs_fim = clock();
-	ans.m_dfs = (double)(M_dfs_fim - M_dfs_ini)/CLOCKS_PER_SEC; 
+	clock_gettime(CLOCK_REALTIME, &M_dfs_fim);
+	ans.m_dfs = diff_timespec(M_dfs_fim, M_dfs_ini); 
 	
-	L_dfs_ini = clock();
+	clock_gettime(CLOCK_REALTIME, &L_dfs_ini);
 	f (i, 0, 8)
 		DIGRAPHdfsL (G);
-	L_dfs_fim = clock();
-	ans.l_dfs = (double)(L_dfs_fim - L_dfs_ini)/CLOCKS_PER_SEC;
+	clock_gettime(CLOCK_REALTIME, &L_dfs_fim);
+	ans.l_dfs = diff_timespec(L_dfs_fim, L_dfs_ini);
 	
-	M_bfs_ini = clock();
+	clock_gettime(CLOCK_REALTIME, &M_bfs_ini);
 	f (i, 0, V)
 		f(j, 0, 8)
 			DIGRAPHbfsM(G, i);
-	M_bfs_fim = clock();
-	ans.m_bfs = (double)(M_bfs_fim - M_bfs_ini)/CLOCKS_PER_SEC;
+	clock_gettime(CLOCK_REALTIME, &M_bfs_fim);
+	ans.m_bfs = diff_timespec(M_bfs_fim, M_bfs_ini);
 	
-	L_bfs_ini = clock();
+	clock_gettime(CLOCK_REALTIME, &L_bfs_ini);
 	f (i, 0, V)
 		f(j, 0, 8)
 			DIGRAPHbfsL(G, i);
-	L_bfs_fim = clock();
-	ans.l_bfs = (double)(L_bfs_fim - L_bfs_ini)/CLOCKS_PER_SEC;
+	clock_gettime(CLOCK_REALTIME, &L_bfs_fim);
+	ans.l_bfs = diff_timespec(L_bfs_fim, L_bfs_ini);
 	
 	ans.arcos = G->A;
+	
+	DIGRAPHfree(G);
+	
 	return ans;
 }
 

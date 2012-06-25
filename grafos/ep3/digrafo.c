@@ -46,7 +46,7 @@ void DIGRAPHdfsL (Digraph G) {
 }
 
 void dfsRL (Digraph G, Vertex v) {
-  link p;
+  Link p;
   lbl[v] = cnt++;
   for (p = G->adj[v]; p != NULL; p= p->next)
     if (lbl[p->w] == -1)
@@ -76,7 +76,7 @@ void DIGRAPHbfsM (Digraph G, Vertex s) {
 
 void DIGRAPHbfsL (Digraph G, Vertex s) {
   Vertex v;
-  link p;
+  Link p;
   cnt = 0;
   for (v = 0; v < G->V; v++)
     lbl[v] = -1;
@@ -112,15 +112,38 @@ Digraph DIGRAPHinit (int V){
 	G->A = 0;
 	G->Adj = MATRIXint(V,V,0);
 	
-	G->adj = malloc(V * sizeof(link));
+	G->adj = malloc(V * sizeof(Link));
 	for (v = 0; v < V; v++)
 		G->adj[v] = NULL;
 	
 	return G;
 }
 
-link NEW (Vertex w, link next) {
-	link p = malloc(sizeof *p);
+void MATRIXfree(int r, int **m){
+	int i;
+	for(i = 0; i < r; i++)
+		free(m[i]);
+	free(m);
+}
+
+void DIGRAPHfree (Digraph G){
+	int v;
+	Link p, sai;
+	MATRIXfree(G->V, G->Adj);
+	
+	for(v = 0; v < G->V; v++){
+		if(G->adj[v] == NULL)
+			continue;
+		for(sai = G->adj[v], p = sai->next; p != NULL; sai = p, p = p->next)
+			free(sai);
+		free(sai);
+	}
+	free(G->adj);
+	free(G);
+}
+
+Link NEW (Vertex w, Link next) {
+	Link p = malloc(sizeof *p);
 	p->w = w;
 	p->next = next;
 	return p;

@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -ansi -pedantic -O2 -Wno-unused-result -lm
+CFLAGS=-Wall -ansi -pedantic -O2 -Wno-unused-result -lm -std=gnu99 -lrt
 DEPS = digrafo.h item.h vertex.h fila.h util.h experimento.h driver.h
 OBJ = digrafo.o fila.o experimento.o driver.o main.o
 

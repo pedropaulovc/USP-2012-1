@@ -24,10 +24,10 @@
 /**
  * Definição de nó de uma lista de adjacencia
  */
-typedef struct node *link;
+typedef struct node *Link;
 struct node {
   Vertex w;
-  link next;
+  Link next;
 };
 
 /**
@@ -37,7 +37,7 @@ struct digraph {
   int V;
   int A;
   int **Adj;
-  link *adj;
+  Link *adj;
 };
 typedef struct digraph *Digraph;
 
@@ -48,6 +48,14 @@ typedef struct digraph *Digraph;
  * 	V: A quantidade de vértices do digrafo.
  */
 Digraph DIGRAPHinit (int V);
+
+/**
+ * Função responsável por desalocar um digrafo.
+ * Parâmetros:
+ * 	G: O digrafo a ser desalocado.
+ */
+void DIGRAPHfree (Digraph G);
+
 /**
  * Função responsável pela inserção de um arco (dirigido) do vértice v
  * ao vértice w no digrafo G.
@@ -66,6 +74,15 @@ void DIGRAPHinsertA (Digraph G,Vertex v,Vertex w);
  * 	val: O valor de inicialização da matriz
  */
 int **MATRIXint (int r, int c, int val);
+
+/**
+ * Função responsável por desalocar uma matriz de inteiros
+ * contendo r linhas.
+ * Parâmetros:
+ * 	r: O número de linhas da matriz
+ * 	m: A matriz a ser desalocada
+ */
+void MATRIXfree(int r, int **m);
 /**
  * Função de alocação de um novo nó da lista de ajacência tendo como 
  * vértice destino o parâmetro w e como próximo elemento na lista
@@ -74,7 +91,7 @@ int **MATRIXint (int r, int c, int val);
  * 	w: O vértice de destino da aresta
  * 	c: O próximo nó na lista de adjacência
  */
-link NEW (Vertex w, link next);
+Link NEW (Vertex w, Link next);
 
 /**
  * Função de busca em profundidade na matriz de adjacencia do

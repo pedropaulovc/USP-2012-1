@@ -56,6 +56,39 @@ O EP foi implementado inteiramente em linguagem C, aproveitando que parte do có
 \end{description}
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Complexidade}
+%TODO
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection*{Dificuldades enfrentadas}
+%TODO Tempo execução, instabilidades random.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Compilação e Uso}
+A implementação entregue acompanha um Makefile para automatizar a compilação. Assim, executar o comando \texttt{make} é suficiente para gerar o binário executável \texttt{EP3-Stefano-Pedro}. Uma vez executado, o programa passa a aguardar da entrada padrão diversos comandos no formato \texttt{'opcode [parâmetros]'} para a geração de dados para posterior análise. Os resultados são exibidos na saída padrão em formato csv para fácil importação em ferramentas de planilhas de dados ou ferramentas estatísticas com o R. As principais diferenças estão na classe de \texttt{p} utilizada e na exibição ou não dos resultados intermediários.
+
+\subsection*{Classe p = $\alpha$}
+\begin{itemize}
+	\item[] \texttt{'a V'}: Busca p para um grafo de V vértices aleatórios, exibe parciais.
+	\item[] \texttt{'A V'}: Idem anterior, não exibe parciais.
+	\item[] \texttt{'b'}: Roda uma bateria de testes para determinar o valor de p para digrafos contendo 10, 20, 50, 80, 100, 150, 250 e 500 vértices, exibe parciais.
+	\item[] \texttt{'B'}: Idem anterior, não exibe parciais.
+\end{itemize}
+
+\subsection*{Classe p = $\alpha/lg(V)$}
+\begin{itemize}
+	\item[] \texttt{'l V'}: Busca p para um grafo de V vértices aleatórios, exibe parciais.
+	\item[] \texttt{'L V'}: Idem anterior, não exibe parciais.
+	\item[] \texttt{'m'}: Roda uma bateria de testes para determinar o valor de p para digrafo contendo 10, 20, 50, 80, 100, 150, 250 e 500 vértices, exibe parciais.
+	\item[] \texttt{'M'}: Idem anterior, não exibe parciais.
+\end{itemize}
+
+\section*{Experimentos realizados}
+\subsection*{Classe p = $\alpha$}
+Conforme sugestão do professor nos primeiros dias de aula, esperávamos que, para para esta classe, a representação em matrizes seria mais eficiente para digrafos que contivessem mais que $O(V*lg(V))$ arcos, ou seja que $p \ge O(lg(V)/V)$. Após executar o comando \texttt{'b'} para obtermos um panorama da convergência de \texttt{p} percebemos que esta é uma boa heurística, apesar de subestimar o valor real.
+
 
 \begin{verbatim}
 b

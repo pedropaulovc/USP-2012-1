@@ -19,7 +19,7 @@ int testes[] = {10, 20, 50, 80, 100, 150, 250, 500};
 resultado rodar_teste (int V, double p){
 	int i;
 	resultado r, total;
-	total.m_dfs = total.l_dfs = total.m_bfs = total.l_bfs = 0;
+	total.arcos = total.m_dfs = total.l_dfs = total.m_bfs = total.l_bfs = 0;
 
 	f (i, 0, REPETICOES_EXPERIMENTO){
 		r = Experimento(V, p);
@@ -114,7 +114,8 @@ void driver(){
 			break;
 		}
 		
-		scanf("%c", &c);
+		if(scanf("%c", &c) != 1)
+			return;
 	}
 }
 

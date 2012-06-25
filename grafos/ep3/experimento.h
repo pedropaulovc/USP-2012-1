@@ -12,6 +12,7 @@
 
 #include<time.h>
 #include<math.h>
+#include<unistd.h>
 #include"util.h"
 #include"digrafo.h"
 
@@ -26,7 +27,13 @@
 /**
  * Definição do epsilon a ser utilizado na função compara_representações.
  */
-#define EPS 1e-3
+#define EPS 1e-5
+
+/**
+ * Definição da diferença de duas struct timespec transformada para double para 
+ * comparação facilitada pelo programa.
+ */
+#define diff_timespec(f, i) (( f.tv_sec - i.tv_sec ) + (double)( f.tv_nsec - i.tv_nsec )/ (double) 1000000000L)
 
 /**
  * Definição do resultado de um experimento. Contém os tempos

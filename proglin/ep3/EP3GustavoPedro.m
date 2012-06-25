@@ -88,6 +88,7 @@ function [ind x] = simplex(A,b,c,m,n,print)
 				continue;
 			#Senão, pivotamos, fazendo entrar uma variável original no lugar de uma artificial
 			else
+				printf("fazendo entrar uma variável original no lugar de uma artificial\n");
 				T(i, :) = T(i, :) / T(i, j);
 
 				for k = 1:m + 1

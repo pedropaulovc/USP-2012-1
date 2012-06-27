@@ -34,12 +34,31 @@ resultado rodar_teste (int V, double p){
 }
 
 void imprimir_cabecalho(){
-	printf("V;alfa;m_dfs;m_bfs;l_dfs;l_bfs\n");
+	printf("V;alfa;m_dfs;m_bfs;l_dfs;l_bfs;diferenca\n");
 }
 
 void imprimir_resultado(int V, double alfa, resultado r){
-	printf("%d;%.8f;%.8f;%.8f;%.8f;%.8f\n", V, alfa, r.m_dfs,
-	r.m_bfs, r.l_dfs, r.l_bfs);
+	double diferenca = r.m_dfs + r.m_bfs - r.l_dfs - r.l_bfs;
+
+	printf("%d;%.8f;%.8f;%.8f;%.8f;%.8f;%.8f\n", V, alfa, r.m_dfs,
+	r.m_bfs, r.l_dfs, r.l_bfs, diferenca);
+}
+
+void imprimir_ajuda(){
+	puts(" - Classe p = \\alpha:");
+	puts("\t - 'a V': Busca p para um grafo de V vértices aleatórios, exibe parciais.");
+	puts("\t - 'A V': Idem anterior, não exibe parciais.");
+	puts("\t - 'b': Roda uma bateria de testes para determinar o valor de p para digrafos");
+	puts("\tcontendo 10, 20, 50, 80, 100, 150, 250 e 500 vértices, exibe parciais.");
+	puts("\t - 'B': Idem anterior, não exibe parciais.");
+	puts(" - Classe p = \\alpha/lg(V)");
+	puts("\t - 'l V': Busca p para um grafo de V vértices aleatórios, exibe parciais.");
+	puts("\t - 'L V': Idem anterior, não exibe parciais.");
+	puts("\t - 'm': Roda uma bateria de testes para determinar o valor de p para digrafos");
+	puts("\tcontendo 10, 20, 50, 80, 100, 150, 250 e 500 vértices, exibe parciais.");
+	puts("\t - 'M': Idem anterior, não exibe parciais.");
+	puts(" - 'e V p' para rodar um experimento com V vértices e probabilidade p.");
+	puts(" - 'f' para encerrar o programa ");
 }
 
 void buscar_alfa(int V, double den, int parcial){
@@ -73,6 +92,8 @@ void buscar_alfa(int V, double den, int parcial){
 void driver(){
 	char c;
 	int V, i;
+	double p;
+	resultado r;
 	
 	scanf("%c", &c);
 	
@@ -109,6 +130,14 @@ void driver(){
 		case 'M':
 			f(i, 0, qtd_testes)
 				buscar_alfa(testes[i], log(testes[i])/log(2), FALSE);
+			break;
+		case 'e':
+			scanf("%d %lf", &V, &p);
+			r = Experimento(V, p);
+			imprimir_resultado(V, p, r);
+			break;
+		case 'h':
+			imprimir_ajuda();
 			break;
 		default:
 			break;

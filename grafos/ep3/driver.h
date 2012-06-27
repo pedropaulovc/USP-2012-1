@@ -56,7 +56,9 @@
  *   - 'm': Roda uma bateria de testes para determinar o valor de p para digrafos
  * contendo 10, 20, 50, 80, 100, 150, 250 e 500 vértices, exibe parciais.
  *   - 'M': Idem anterior, não exibe parciais.
+ * - 'e V p' para rodar um experimento com V vértices e probabilidade p.
  * - 'f' para encerrar o programa 
+ * - 'h' para exibir a ajuda
  */
 void driver ();
 /**
@@ -79,6 +81,12 @@ void imprimir_cabecalho();
  * representação.
  */
 void imprimir_resultado(int V, double alfa, resultado r);
+
+/**
+ * Função responsável por imprimir na saída padrão os comandos disponíveis
+ * ao usuário.
+ */
+void imprimir_ajuda();
 
 /**
  * Implementação da busca binária para localizar o valor de \alpha que marca
